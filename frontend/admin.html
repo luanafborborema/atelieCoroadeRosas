@@ -15,7 +15,13 @@
 </head>
 <body>
 
-<header><nav class="navbar"><div class="logo"><a href="index.html"><img src="imagens/logo.coroaderosas.png" alt="Logo"></a></div></nav></header>
+<header>
+    <nav class="navbar">
+        <div class="logo">
+            <a href="index.html"><img src="imagens/logo.coroaderosas.png" alt="Logo"></a>
+        </div>
+    </nav>
+</header>
 
 <div class="admin-container">
     <div class="login-form" id="loginForm">
@@ -27,7 +33,8 @@
     <div class="admin-panel" id="adminPanel">
         <div id="formContainer">
             <h2 class="admin-title" id="formTitle">Cadastrar Novo Produto</h2>
-            <input type="hidden" id="produtoId"><input type="hidden" id="imagensAntigas">
+            <input type="hidden" id="produtoId">
+            <input type="hidden" id="imagensAntigas">
             <div class="form-group"><label for="categoria">Categoria:</label><select id="categoria"><option value="tercos">Terços</option><option value="chaveiros">Chaveiros</option><option value="pulseiras">Pulseiras</option></select></div>
             <div class="form-group"><label for="nomeProduto">Nome:</label><input type="text" id="nomeProduto" placeholder="Ex: Terço Tradicional"></div>
             <div class="form-group"><label for="descricao">Descrição:</label><textarea id="descricao" placeholder="Descreva o produto..."></textarea></div>
@@ -39,7 +46,8 @@
             <div class="form-group"><label for="imagensUpload">Fotos:</label><input type="file" id="imagensUpload" accept="image/*" multiple style="padding:8px"><small style="color:#777">Pode selecionar várias. Novas imagens substituem as antigas ao editar.</small></div>
             <button class="btn-admin" id="formButton" onclick="submeterFormulario()">Cadastrar Produto</button>
             <button class="btn-admin" id="cancelarEdicaoBtn" onclick="cancelarEdicao()">Cancelar Edição</button>
-            <div class="success-message" id="formSuccess"></div><div class="error-message" id="formError"></div>
+            <div class="success-message" id="formSuccess"></div>
+            <div class="error-message" id="formError"></div>
         </div>
         <div id="gerenciarProdutos">
             <h2 class="admin-title">Gerenciar Produtos</h2>
@@ -54,87 +62,84 @@
 </footer>
 
 <script>
+    const API_URL = "https://atelie-backend-luana.onrender.com";
+
     let currentImageFilenames = [];
-    // ATUALIZAÇÃO: Variável para controlar o nosso temporizador
     let pollingInterval = null;
 
     async function handleFetch(url, options) { try { const response = await fetch(url, options); const data = await response.json(); if (!response.ok) throw new Error(data.error || `Erro ${response.status}`); return data; } catch (error) { console.error('Fetch Error:', error); throw error; } }
     function showMessage(elementId, message) { const el = document.getElementById(elementId); el.textContent = message; el.style.display = 'block'; setTimeout(() => { el.style.display = 'none'; }, 4000); }
+    async function verificarSenha() { try { await handleFetch(`${API_URL}/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ senha: document.getElementById('senha').value }) }); document.getElementById('loginForm').style.display = 'none'; document.getElementById('adminPanel').style.display = 'block'; carregarProdutosAdmin(); iniciarPollingDeVisualizacoes(); } catch (error) { showMessage('loginError', error.message); } }
     
-    async function verificarSenha() { 
-        try { 
-            await handleFetch('http://localhost:3001/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ senha: document.getElementById('senha').value }) }); 
-            document.getElementById('loginForm').style.display = 'none'; 
-            document.getElementById('adminPanel').style.display = 'block'; 
-            carregarProdutosAdmin();
-            // ATUALIZAÇÃO: Inicia a verificação constante após o login
-            iniciarPollingDeVisualizacoes();
-        } catch (error) { 
-            showMessage('loginError', error.message); 
-        } 
-    }
-
     async function carregarProdutosAdmin() {
-        const lista = document.getElementById('listaProdutosAdmin'); 
-        lista.innerHTML = '<li>Carregando...</li>';
+        const lista = document.getElementById('listaProdutosAdmin'); lista.innerHTML = '<li>Carregando...</li>';
         try {
-            const produtos = await handleFetch('http://localhost:3001/produtos');
+            const produtos = await handleFetch(`${API_URL}/produtos`);
             lista.innerHTML = '';
             if (produtos.length === 0) { lista.innerHTML = '<li>Nenhum produto cadastrado.</li>'; return; }
-            produtos.forEach(p => { 
-                const item = document.createElement('li'); 
-                item.className = 'produto-item-admin'; 
-                // ATUALIZAÇÃO: Adiciona um ID único para o span das visualizações
-                item.innerHTML = `<span>${p.nome}</span><div class="actions-container"><span class="views-count" id="view-count-${p._id}">👁️ ${p.visualizacoes || 0}</span><div><button class="btn-action btn-edit" onclick="prepararEdicao('${p._id}')">Editar</button><button class="btn-action btn-delete" onclick="excluirProduto('${p._id}', '${p.nome}')">Excluir</button></div></div>`; 
-                lista.appendChild(item); 
-            });
-        } catch (error) { 
-            lista.innerHTML = `<li>Erro: ${error.message}</li>`; 
-        }
-    }
-
-    // --- NOVA FUNÇÃO PARA ATUALIZAR APENAS OS NÚMEROS ---
-    async function atualizarContagemDeVisualizacoes() {
-        try {
-            const produtos = await handleFetch('http://localhost:3001/produtos');
-            produtos.forEach(p => {
-                const viewElement = document.getElementById(`view-count-${p._id}`);
-                if (viewElement) {
-                    viewElement.innerText = `👁️ ${p.visualizacoes || 0}`;
-                }
-            });
-        } catch (error) {
-            console.error("Erro no polling:", error.message);
-            // Para o polling se houver um erro de rede para não ficar tentando para sempre
-            clearInterval(pollingInterval);
-        }
-    }
-
-    // --- NOVA FUNÇÃO PARA INICIAR O POLLING ---
-    function iniciarPollingDeVisualizacoes() {
-        if (pollingInterval) {
-            clearInterval(pollingInterval); // Limpa qualquer intervalo antigo, por segurança
-        }
-        // A cada 5 segundos (5000ms), a função de atualizar será chamada
-        pollingInterval = setInterval(atualizarContagemDeVisualizacoes, 5000);
+            produtos.forEach(p => { const item = document.createElement('li'); item.className = 'produto-item-admin'; item.innerHTML = `<span>${p.nome}</span><div class="actions-container"><span class="views-count" id="view-count-${p._id}">👁️ ${p.visualizacoes || 0}</span><div><button class="btn-action btn-edit" onclick="prepararEdicao('${p._id}')">Editar</button><button class="btn-action btn-delete" onclick="excluirProduto('${p._id}', '${p.nome}')">Excluir</button></div></div>`; lista.appendChild(item); });
+        } catch (error) { lista.innerHTML = `<li>Erro: ${error.message}</li>`; }
     }
     
-    async function excluirProduto(id, nome) { if (!confirm(`Tem certeza que deseja excluir "${nome}"?`)) return; try { await handleFetch(`http://localhost:3001/produtos/${id}`, { method: 'DELETE' }); showMessage('formSuccess', `Produto "${nome}" excluído!`); carregarProdutosAdmin(); } catch (error) { showMessage('formError', `Erro ao excluir: ${error.message}`); } }
-    async function prepararEdicao(id) {
-        try { const produto = await handleFetch(`http://localhost:3001/produtos/${id}`); document.getElementById('formTitle').innerText = 'Editando Produto'; document.getElementById('produtoId').value = produto._id; ['categoria', 'nomeProduto', 'descricao', 'preco', 'pedrasAveMaria', 'pedrasPaiNosso', 'detalhesCrucifixo', 'divisao'].forEach(key => { document.getElementById(key).value = produto[key.replace('nomeProduto', 'nome')] || ''; }); currentImageFilenames = (produto.imagens && produto.imagens.length > 0) ? produto.imagens : (produto.imagem ? [produto.imagem] : []); document.getElementById('imagensAntigas').value = JSON.stringify(currentImageFilenames); document.getElementById('formButton').innerText = 'Salvar Alterações'; document.getElementById('cancelarEdicaoBtn').style.display = 'block'; window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (error) { showMessage('formError', error.message); }
+    async function atualizarContagemDeVisualizacoes() {
+        try {
+            const produtos = await handleFetch(`${API_URL}/produtos`);
+            produtos.forEach(p => {
+                const viewElement = document.getElementById(`view-count-${p._id}`);
+                if (viewElement) { viewElement.innerText = `👁️ ${p.visualizacoes || 0}`; }
+            });
+        } catch (error) { console.error("Erro no polling:", error.message); clearInterval(pollingInterval); }
     }
-    function cancelarEdicao() { document.getElementById('formTitle').innerText = 'Cadastrar Novo Produto'; ['produtoId', 'imagensAntigas', 'nomeProduto', 'descricao', 'preco', 'pedrasAveMaria', 'pedrasPaiNosso', 'detalhesCrucifixo', 'divisao', 'imagensUpload'].forEach(id => { document.getElementById(id).value = ''; }); document.getElementById('categoria').value = 'tercos'; document.getElementById('formButton').innerText = 'Cadastrar Produto'; document.getElementById('cancelarEdicaoBtn').style.display = 'none'; currentImageFilenames = []; }
+    
+    function iniciarPollingDeVisualizacoes() { if (pollingInterval) { clearInterval(pollingInterval); } pollingInterval = setInterval(atualizarContagemDeVisualizacoes, 5000); }
+    async function excluirProduto(id, nome) { if (!confirm(`Tem certeza que deseja excluir "${nome}"?`)) return; try { await handleFetch(`${API_URL}/produtos/${id}`, { method: 'DELETE' }); showMessage('formSuccess', `Produto "${nome}" excluído!`); carregarProdutosAdmin(); } catch (error) { showMessage('formError', `Erro ao excluir: ${error.message}`); } }
+    
+    async function prepararEdicao(id) {
+        try {
+            const produto = await handleFetch(`${API_URL}/produtos/${id}`);
+            document.getElementById('formTitle').innerText = 'Editando Produto';
+            document.getElementById('produtoId').value = produto._id;
+            ['categoria', 'nomeProduto', 'descricao', 'preco', 'pedrasAveMaria', 'pedrasPaiNosso', 'detalhesCrucifixo', 'divisao'].forEach(key => { document.getElementById(key).value = produto[key.replace('nomeProduto', 'nome')] || ''; });
+            currentImageFilenames = (produto.imagens && produto.imagens.length > 0) ? produto.imagens : (produto.imagem ? [produto.imagem] : []);
+            document.getElementById('imagensAntigas').value = JSON.stringify(currentImageFilenames);
+            document.getElementById('formButton').innerText = 'Salvar Alterações';
+            document.getElementById('cancelarEdicaoBtn').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch (error) { showMessage('formError', error.message); }
+    }
+
+    function cancelarEdicao() {
+        document.getElementById('formTitle').innerText = 'Cadastrar Novo Produto';
+        ['produtoId', 'imagensAntigas', 'nomeProduto', 'descricao', 'preco', 'pedrasAveMaria', 'pedrasPaiNosso', 'detalhesCrucifixo', 'divisao', 'imagensUpload'].forEach(id => { document.getElementById(id).value = ''; });
+        document.getElementById('categoria').value = 'tercos';
+        document.getElementById('formButton').innerText = 'Cadastrar Produto';
+        document.getElementById('cancelarEdicaoBtn').style.display = 'none';
+        currentImageFilenames = [];
+    }
+
     async function submeterFormulario() {
-        const produtoId = document.getElementById('produtoId').value; const isEditing = !!produtoId; const fileInput = document.getElementById('imagensUpload');
+        const produtoId = document.getElementById('produtoId').value;
+        const isEditing = !!produtoId;
+        const fileInput = document.getElementById('imagensUpload');
         let finalImageFilenames = isEditing ? JSON.parse(document.getElementById('imagensAntigas').value) : [];
         try {
-            if (fileInput.files.length > 0) { const formData = new FormData(); for (const file of fileInput.files) { formData.append('imagens', file); } const uploadResult = await handleFetch('http://localhost:3001/upload', { method: 'POST', body: formData }); finalImageFilenames = uploadResult.filenames; }
+            if (fileInput.files.length > 0) {
+                const formData = new FormData();
+                for (const file of fileInput.files) { formData.append('imagens', file); }
+                const uploadResult = await handleFetch(`${API_URL}/upload`, { method: 'POST', body: formData });
+                finalImageFilenames = uploadResult.filenames;
+            }
             if (finalImageFilenames.length === 0) throw new Error('Pelo menos uma imagem é obrigatória.');
             const produtoData = { categoria: document.getElementById('categoria').value, nome: document.getElementById('nomeProduto').value, descricao: document.getElementById('descricao').value, preco: parseFloat(document.getElementById('preco').value), imagens: finalImageFilenames, pedrasAveMaria: document.getElementById('pedrasAveMaria').value, pedrasPaiNosso: document.getElementById('pedrasPaiNosso').value, detalhesCrucifixo: document.getElementById('detalhesCrucifixo').value, divisao: document.getElementById('divisao').value };
-            const url = isEditing ? `http://localhost:3001/produtos/${produtoId}` : 'http://localhost:3001/produtos'; const method = isEditing ? 'PUT' : 'POST';
+            const url = isEditing ? `${API_URL}/produtos/${produtoId}` : `${API_URL}/produtos`;
+            const method = isEditing ? 'PUT' : 'POST';
             await handleFetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(produtoData) });
-            showMessage('formSuccess', `Produto ${isEditing ? 'atualizado' : 'cadastrado'}!`); cancelarEdicao(); carregarProdutosAdmin();
-        } catch (error) { showMessage('formError', `Erro: ${error.message}`); }
+            showMessage('formSuccess', `Produto ${isEditing ? 'atualizado' : 'cadastrado'}!`);
+            cancelarEdicao();
+            carregarProdutosAdmin();
+        } catch (error) {
+            showMessage('formError', `Erro: ${error.message}`);
+        }
     }
 </script>
 
