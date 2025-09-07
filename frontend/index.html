@@ -111,7 +111,6 @@
 <script src="script.js"></script>
 <script>
     const API_URL = "https://atelie-backend-luana.onrender.com";
-
     document.getElementById('adminLink').addEventListener('click', () => { window.location.href = 'admin.html'; });
     document.addEventListener('DOMContentLoaded', carregarProdutos);
 
@@ -141,9 +140,12 @@
                     container.innerHTML += produtoHTML;
                 }
             });
-        } catch (error) { console.error(error); document.querySelectorAll('.produtos-container').forEach(c => c.innerHTML = '<p>Não foi possível carregar os produtos.</p>'); }
+        } catch (error) {
+            console.error(error);
+            document.querySelectorAll('.produtos-container').forEach(c => c.innerHTML = '<p>Não foi possível carregar os produtos.</p>');
+        }
     }
-    
+
     const modal = document.getElementById('detalhesModal');
     async function mostrarDetalhes(id) {
         try {
@@ -159,8 +161,21 @@
             const listaDeImagens = (p.imagens && p.imagens.length > 0) ? p.imagens : (p.imagem ? [p.imagem] : []);
             if (listaDeImagens.length > 0) {
                 imgPrincipal.src = `${API_URL}/uploads/${listaDeImagens[0]}`;
-                listaDeImagens.forEach((img, index) => { const thumb = document.createElement('img'); thumb.src = `${API_URL}/uploads/${img}`; thumb.className = 'thumbnail'; if (index === 0) thumb.classList.add('active'); thumb.onclick = () => { imgPrincipal.src = thumb.src; document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active')); thumb.classList.add('active'); }; thumbContainer.appendChild(thumb); });
-            } else { imgPrincipal.src = ''; }
+                listaDeImagens.forEach((img, index) => {
+                    const thumb = document.createElement('img');
+                    thumb.src = `${API_URL}/uploads/${img}`;
+                    thumb.className = 'thumbnail';
+                    if (index === 0) thumb.classList.add('active');
+                    thumb.onclick = () => {
+                        imgPrincipal.src = thumb.src;
+                        document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+                        thumb.classList.add('active');
+                    };
+                    thumbContainer.appendChild(thumb);
+                });
+            } else {
+                imgPrincipal.src = '';
+            }
             const extraDetails = document.getElementById('modal-extra-details');
             let detailsHTML = '';
             if (p.pedrasAveMaria) detailsHTML += `<p><strong>Contas (Ave-Maria):</strong> ${p.pedrasAveMaria}</p>`;
@@ -169,15 +184,29 @@
             if (p.divisao) detailsHTML += `<p><strong>Divisões:</strong> ${p.divisao}</p>`;
             extraDetails.innerHTML = detailsHTML;
             modal.classList.add('show');
-        } catch (error) { console.error(error); alert('Não foi possível carregar os detalhes do produto.'); }
+        } catch (error) {
+            console.error(error);
+            alert('Não foi possível carregar os detalhes do produto.');
+        }
     }
-    function fecharDetalhes() { modal.classList.remove('show'); }
-    modal.addEventListener('click', (event) => { if (event.target === modal) fecharDetalhes(); });
+    function fecharDetalhes() {
+        modal.classList.remove('show');
+    }
+    modal.addEventListener('click', (event) => {
+        if (event.target === modal) fecharDetalhes();
+    });
 
     const contatoModal = document.getElementById('contatoModal');
-    function abrirPopupContato(event) { event.preventDefault(); contatoModal.classList.add('show'); }
-    function fecharPopupContato() { contatoModal.classList.remove('show'); }
-    contatoModal.addEventListener('click', (event) => { if (event.target === contatoModal) fecharPopupContato(); });
+    function abrirPopupContato(event) {
+        event.preventDefault();
+        contatoModal.classList.add('show');
+    }
+    function fecharPopupContato() {
+        contatoModal.classList.remove('show');
+    }
+    contatoModal.addEventListener('click', (event) => {
+        if (event.target === contatoModal) fecharPopupContato();
+    });
 </script>
 
 </body>
