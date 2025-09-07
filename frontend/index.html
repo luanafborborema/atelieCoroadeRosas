@@ -1,0 +1,160 @@
+<!-- START OF FILE index.html -->
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ateliê Coroa de Rosas</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+    <nav class="navbar">
+        <div class="menu-hamburguer" id="menu-hamburguer">&#9776;</div>
+        <div class="logo"><a href="index.html"><img src="imagens/logo.coroaderosas.png" alt="Logo"></a></div>
+    </nav>
+</header>
+<aside class="menu-lateral" id="menu-lateral">
+    <div class="menu-fechar" id="menu-fechar">&times;</div>
+    <ul>
+        <li><a href="#pulseiras">Pulseiras</a></li>
+        <li><a href="#chaveiros">Chaveiros</a></li>
+        <li><a href="#tercos">Terços</a></li>
+        <li><a href="#" onclick="abrirPopupContato(event)">Contato</a></li>
+    </ul>
+</aside>
+
+<main>
+    <section id="tercos">
+        <h2>Terços</h2>
+        <div class="produtos-container" id="lista-tercos"></div>
+    </section>
+
+    <hr class="section-divider">
+
+    <section id="chaveiros">
+        <h2>Chaveiros</h2>
+        <div class="produtos-container" id="lista-chaveiros"></div>
+    </section>
+
+    <hr class="section-divider">
+
+    <section id="pulseiras">
+        <h2>Pulseiras</h2>
+        <div class="produtos-container" id="lista-pulseiras"></div>
+    </section>
+</main>
+
+<footer>
+    <div class="footer-content">
+        <p>Desenvolvido por Ateliê Coroa de Rosas</p>
+        <p>© 2024 - <span id="adminLink" style="cursor: pointer;">Todos os direitos reservados</span></p>
+    </div>
+</footer>
+
+<div class="modal-overlay" id="detalhesModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modalNome"></h2>
+            <span class="modal-close" onclick="fecharDetalhes()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="modal-gallery">
+                <div class="main-image-container"><img src="" alt="Imagem Principal" id="modalImagemPrincipal"></div>
+                <div class="thumbnail-container" id="thumbnailContainer"></div>
+            </div>
+            <p id="modalDescricao"></p>
+            <div id="modal-extra-details"></div>
+            <span id="modalPreco"></span>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="contatoModal">
+    <div class="modal-content">
+        <div class="modal-header"><h2>Fale Conosco</h2><span class="modal-close" onclick="fecharPopupContato()">&times;</span></div>
+        <div class="modal-body">
+            <ul class="contact-popup-list">
+                <li><svg class="icon" viewBox="0 0 24 24"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38c1.45.79 3.08 1.21 4.79 1.21 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zM12.04 20.6c-1.61 0-3.19-.48-4.57-1.37l-.33-.19-3.41.9.92-3.32-.21-.35c-.96-1.58-1.47-3.4-1.47-5.28 0-4.6 3.73-8.33 8.33-8.33s8.33 3.73 8.33 8.33c0 4.6-3.73 8.33-8.33 8.33zm4.52-6.13c-.25-.12-1.47-.72-1.7-.81-.23-.08-.39-.12-.56.12s-.64.81-.79.97c-.14.17-.29.19-.54.06s-1.06-.39-2.02-1.25c-.75-.67-1.25-1.5-1.4-1.75-.14-.25-.02-.38.11-.51s.25-.29.37-.43c.13-.14.17-.25.25-.41.08-.17.04-.31-.02-.43s-.56-1.34-.76-1.84c-.2-.48-.41-.42-.56-.42h-.48c-.17 0-.43.06-.66.31s-.86.85-.86 2.07c0 1.22.88 2.4 1 2.56.12.17 1.73 2.63 4.2 3.68.59.25 1.05.4 1.41.51.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.14-1.18s-.2-.19-.44-.31z"/></svg><a href="https://api.whatsapp.com/send?phone=5544991662198" target="_blank">(44) 99166-2198</a></li>
+                <li><svg class="icon" viewBox="0 0 24 24"><path d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6zm-2 0l-8 5-8-5h16zm0 12H4V8l8 5 8-5v10z"/></svg><a href="mailto:luanaferreiraborborema489@gmail.com">luanaferreiraborborema489@gmail.com</a></li>
+                <li><svg class="icon" viewBox="0 0 24 24"><path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4H7.6m9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8 1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/></svg><a href="https://www.instagram.com/atelie.coroaderosas/" target="_blank">@atelie.coroaderosas (Loja)</a></li>
+                <li><svg class="icon" viewBox="0 0 24 24"><path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4H7.6m9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8 1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/></svg><a href="https://www.instagram.com/luanafborborema/" target="_blank">@luanafborborema (Pessoal)</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script src="script.js"></script>
+<script>
+    document.getElementById('adminLink').addEventListener('click', () => { window.location.href = 'admin.html'; });
+    document.addEventListener('DOMContentLoaded', carregarProdutos);
+
+    async function carregarProdutos() {
+        try {
+            const response = await fetch('http://localhost:3001/produtos');
+            if (!response.ok) throw new Error('Falha ao carregar produtos.');
+            const produtos = await response.json();
+            const containers = {
+                tercos: document.getElementById('lista-tercos'),
+                chaveiros: document.getElementById('lista-chaveiros'),
+                pulseiras: document.getElementById('lista-pulseiras')
+            };
+            Object.values(containers).forEach(c => c.innerHTML = '');
+            produtos.forEach(p => {
+                const categoriaKey = (p.categoria || '').toLowerCase();
+                const container = containers[categoriaKey];
+                const imagemCapa = (p.imagens && p.imagens.length > 0) ? p.imagens[0] : p.imagem;
+                if (container && imagemCapa) {
+                    const produtoHTML = `
+                        <div class="produto" onclick="mostrarDetalhes('${p._id}')">
+                            <img src="http://localhost:3001/uploads/${imagemCapa}" alt="${p.nome}">
+                            <h3>${p.nome}</h3>
+                            <p>${(p.descricao || '').substring(0, 80)}${(p.descricao || '').length > 80 ? '...' : ''}</p>
+                            <span>R$ ${(p.preco || 0).toFixed(2).replace('.', ',')}</span>
+                        </div>`;
+                    container.innerHTML += produtoHTML;
+                }
+            });
+        } catch (error) { console.error(error); document.querySelectorAll('.produtos-container').forEach(c => c.innerHTML = '<p>Não foi possível carregar os produtos.</p>'); }
+    }
+    
+    const modal = document.getElementById('detalhesModal');
+    async function mostrarDetalhes(id) {
+        try {
+            const response = await fetch(`http://localhost:3001/produtos/${id}`);
+            if (!response.ok) throw new Error('Produto não encontrado.');
+            const p = await response.json();
+            document.getElementById('modalNome').innerText = p.nome;
+            document.getElementById('modalDescricao').innerText = p.descricao;
+            document.getElementById('modalPreco').innerText = `R$ ${(p.preco || 0).toFixed(2).replace('.', ',')}`;
+            const imgPrincipal = document.getElementById('modalImagemPrincipal');
+            const thumbContainer = document.getElementById('thumbnailContainer');
+            thumbContainer.innerHTML = '';
+            const listaDeImagens = (p.imagens && p.imagens.length > 0) ? p.imagens : (p.imagem ? [p.imagem] : []);
+            if (listaDeImagens.length > 0) {
+                imgPrincipal.src = `http://localhost:3001/uploads/${listaDeImagens[0]}`;
+                listaDeImagens.forEach((img, index) => { const thumb = document.createElement('img'); thumb.src = `http://localhost:3001/uploads/${img}`; thumb.className = 'thumbnail'; if (index === 0) thumb.classList.add('active'); thumb.onclick = () => { imgPrincipal.src = thumb.src; document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active')); thumb.classList.add('active'); }; thumbContainer.appendChild(thumb); });
+            } else { imgPrincipal.src = ''; }
+            const extraDetails = document.getElementById('modal-extra-details');
+            let detailsHTML = '';
+            if (p.pedrasAveMaria) detailsHTML += `<p><strong>Contas (Ave-Maria):</strong> ${p.pedrasAveMaria}</p>`;
+            if (p.pedrasPaiNosso) detailsHTML += `<p><strong>Contas (Pai Nosso):</strong> ${p.pedrasPaiNosso}</p>`;
+            if (p.detalhesCrucifixo) detailsHTML += `<p><strong>Crucifixo e Entremeio:</strong> ${p.detalhesCrucifixo}</p>`;
+            if (p.divisao) detailsHTML += `<p><strong>Divisões:</strong> ${p.divisao}</p>`;
+            extraDetails.innerHTML = detailsHTML;
+            modal.classList.add('show');
+        } catch (error) { console.error(error); alert('Não foi possível carregar os detalhes do produto.'); }
+    }
+    function fecharDetalhes() { modal.classList.remove('show'); }
+    modal.addEventListener('click', (event) => { if (event.target === modal) fecharDetalhes(); });
+
+    const contatoModal = document.getElementById('contatoModal');
+    function abrirPopupContato(event) { event.preventDefault(); contatoModal.classList.add('show'); }
+    function fecharPopupContato() { contatoModal.classList.remove('show'); }
+    contatoModal.addEventListener('click', (event) => { if (event.target === contatoModal) fecharPopupContato(); });
+</script>
+
+</body>
+</html>
