@@ -7,17 +7,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ateliê Coroa de Rosas</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        .modal-gallery { margin-bottom: 20px; }
-        .main-image-container { width: 100%; max-height: 350px; margin-bottom: 10px; background-color: #f8f0f4; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
-        #modalImagemPrincipal { max-width: 100%; max-height: 350px; object-fit: contain; }
-        .thumbnail-container { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
-        .thumbnail { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; cursor: pointer; border: 2px solid #ddd; transition: border-color 0.3s; }
-        .thumbnail:hover, .thumbnail.active { border-color: #d7547e; }
-        #modal-extra-details { text-align: left; font-size: 1rem; color: #555; margin-top: 20px; padding-top: 15px; border-top: 1px solid #f0f0f0; }
-        #modal-extra-details p { margin-bottom: 10px; line-height: 1.5; }
-        #modal-extra-details strong { color: #d7547e; }
-    </style>
 </head>
 <body>
 
@@ -130,13 +119,7 @@
                 const container = containers[categoriaKey];
                 const imagemCapa = (p.imagens && p.imagens.length > 0) ? p.imagens[0] : p.imagem;
                 if (container && imagemCapa) {
-                    const produtoHTML = `
-                        <div class="produto" onclick="mostrarDetalhes('${p._id}')">
-                            <img src="${API_URL}/uploads/${imagemCapa}" alt="${p.nome}">
-                            <h3>${p.nome}</h3>
-                            <p>${(p.descricao || '').substring(0, 80)}${(p.descricao || '').length > 80 ? '...' : ''}</p>
-                            <span>R$ ${(p.preco || 0).toFixed(2).replace('.', ',')}</span>
-                        </div>`;
+                    const produtoHTML = `<div class="produto" onclick="mostrarDetalhes('${p._id}')"><img src="${imagemCapa}" alt="${p.nome}"><h3>${p.nome}</h3><p>${(p.descricao || '').substring(0, 80)}${(p.descricao || '').length > 80 ? '...' : ''}</p><span>R$ ${(p.preco || 0).toFixed(2).replace('.', ',')}</span></div>`;
                     container.innerHTML += produtoHTML;
                 }
             });
@@ -145,7 +128,7 @@
             document.querySelectorAll('.produtos-container').forEach(c => c.innerHTML = '<p>Não foi possível carregar os produtos.</p>');
         }
     }
-
+    
     const modal = document.getElementById('detalhesModal');
     async function mostrarDetalhes(id) {
         try {
@@ -160,10 +143,10 @@
             thumbContainer.innerHTML = '';
             const listaDeImagens = (p.imagens && p.imagens.length > 0) ? p.imagens : (p.imagem ? [p.imagem] : []);
             if (listaDeImagens.length > 0) {
-                imgPrincipal.src = `${API_URL}/uploads/${listaDeImagens[0]}`;
+                imgPrincipal.src = listaDeImagens[0];
                 listaDeImagens.forEach((img, index) => {
                     const thumb = document.createElement('img');
-                    thumb.src = `${API_URL}/uploads/${img}`;
+                    thumb.src = img;
                     thumb.className = 'thumbnail';
                     if (index === 0) thumb.classList.add('active');
                     thumb.onclick = () => {
@@ -210,4 +193,4 @@
 </script>
 
 </body>
-</html>
+</html>```
