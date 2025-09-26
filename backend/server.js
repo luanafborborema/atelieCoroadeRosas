@@ -10,6 +10,45 @@ const PORT = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
+const path = require('path');
+const fs = require('fs');
+const multer = require('multer');
+
+// garante que a pasta uploads existe
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+// configura multer para salvar arquivos enviados
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, uploadsDir);
+    },
+    filename: function (req, file, cb) {
+        const timestamp = Date.now();
+        // preserva extensão do arquivo
+        const safeName = file.originalname.replace(/[^a-zA-Z0-9.\-_()\s]/g, '');
+        cb(null, `${timestamp}-${safeName}`);
+    }
+});
+const upload = multer({ storage });
+
+// serve arquivos estáticos de /uploads
+app.use('/uploads', express.static(uploadsDir));
+
+// endpoint para upload de imagens (recebe campo 'images')
+app.post('/upload', upload.array('images'), (req, res) => {
+    try {
+        if (!req.files || req.files.length === 0) return res.status(400).json({ success: false, error: 'Nenhum arquivo enviado.' });
+        const baseUrl = process.env.BASE_URL || `http://localhost:${PORT}`;
+        const urls = req.files.map(f => `${baseUrl}/uploads/${encodeURIComponent(path.basename(f.path))}`);
+        res.json({ success: true, urls });
+    } catch (error) {
+        console.error('Erro no upload:', error);
+        res.status(500).json({ success: false, error: 'Erro ao processar upload.' });
+    }
+});
 
 const dbURI = process.env.MONGODB_URI || "mongodb://localhost:27017/atelieDB";
 mongoose.connect(dbURI).then(() => console.log('Conectado ao MongoDB!')).catch(err => console.error('Erro de conexão:', err));
