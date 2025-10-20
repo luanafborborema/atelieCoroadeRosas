@@ -1,51 +1,365 @@
-/* --- START OF FILE style.css --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+}
 
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Arial', sans-serif; }
-body { background-color: #fffafb; color: #333; line-height: 1.6; }
-.navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: linear-gradient(135deg, #f8f0f4 0%, #ffe6ee 100%); position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(215, 84, 126, 0.1); }
-.menu-hamburguer { font-size: 2.5rem; cursor: pointer; color: #d7547e; transition: transform 0.3s ease; }
-.menu-hamburguer:hover { transform: scale(1.1); }
-.navbar .logo img { height: 70px; width: auto; transition: transform 0.3s ease; }
-.navbar .logo img:hover { transform: scale(1.05); }
-.menu-lateral { position: fixed; top: 0; left: -100%; width: 85%; max-width: 300px; height: 100%; background: linear-gradient(180deg, #f8f0f4 0%, #ffe6ee 100%); overflow-y: auto; z-index: 2000; transition: left 0.4s ease; padding: 25px; box-shadow: 2px 0 15px rgba(0, 0, 0, 0.1); }
-.menu-lateral.show { left: 0; }
-.menu-fechar { font-size: 2.8rem; color: #d7547e; cursor: pointer; margin-bottom: 30px; text-align: right; transition: color 0.3s ease; }
-.menu-fechar:hover { color: #b33c62; }
-.menu-lateral ul { list-style: none; }
-.menu-lateral ul li a { text-decoration: none; font-weight: bold; color: #d7547e; font-size: 1.3rem; padding: 12px 15px; border-radius: 8px; transition: all 0.3s ease; display: block; margin-bottom: 10px; }
-.menu-lateral ul li a:hover { background-color: #d7547e; color: white; transform: translateX(5px); }
-main { padding: 20px; max-width: 1200px; margin: 0 auto; }
-section { margin-bottom: 40px; animation: fadeIn 0.6s ease-out; }
-section h2 { color: #d7547e; margin-bottom: 25px; font-size: 2rem; text-align: center; }
-.produtos-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 25px; }
-.produto { border: 1px solid #f0f0f0; border-radius: 15px; padding: 20px; text-align: center; background: white; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); cursor: pointer; }
-.produto:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(215, 84, 126, 0.2); border-color: #d7547e; }
-.produto img { width: 100%; height: 250px; object-fit: contain; border-radius: 10px; margin-bottom: 15px; transition: transform 0.3s ease; background-color: #f8f0f4; padding: 10px; }
-.produto:hover img { transform: scale(1.05); }
-.produto h3 { font-size: 1.2rem; color: #333; margin-bottom: 10px; }
-.produto p { font-size: 1rem; color: #666; margin-bottom: 15px; line-height: 1.5; }
-.produto span { font-weight: bold; color: #d7547e; font-size: 1.3rem; display: block; margin-top: auto; }
-footer { background: linear-gradient(135deg, #f8f0f4 0%, #ffe6ee 100%); padding: 30px 20px; text-align: center; margin-top: 50px; }
-.footer-content p { color: #d7547e; margin: 5px 0; }
-.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 3000; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; }
-.modal-overlay.show { opacity: 1; visibility: visible; }
-.modal-content { background: white; padding: 30px; border-radius: 15px; width: 90%; max-width: 600px; box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2); transform: translateY(-20px); transition: transform 0.3s; max-height: 90vh; overflow-y: auto; }
-.modal-overlay.show .modal-content { transform: translateY(0); }
-.modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px; }
-.modal-header h2 { color: #d7547e; font-size: 1.8rem; margin: 0; }
-.modal-close { font-size: 2.5rem; color: #aaa; cursor: pointer; line-height: 1; transition: color 0.2s; }
-.modal-close:hover { color: #333; }
-.modal-body img { width: 100%; max-height: 350px; object-fit: contain; border-radius: 10px; margin-bottom: 20px; background-color: #f8f0f4; }
-.modal-body p { font-size: 1.1rem; color: #666; margin-bottom: 15px; text-align: left; }
-.modal-body span { display: block; font-size: 1.8rem; font-weight: bold; color: #d7547e; text-align: right; margin-top: 20px; }
-#modal-extra-details p { margin-bottom: 8px; font-size: 1rem; }
-.contact-popup-list { list-style: none; padding: 0; margin-top: 20px; }
-.contact-popup-list li { display: flex; align-items: center; margin-bottom: 25px; }
-.contact-popup-list .icon { flex-shrink: 0; fill: #d7547e; width: 28px; height: 28px; margin-right: 20px; }
-.contact-popup-list a { text-decoration: none; color: #333; font-size: 1.1rem; font-weight: bold; transition: color 0.3s ease; word-break: break-all; }
-.contact-popup-list a:hover { color: #d7547e; text-decoration: underline; }
-.section-divider { border: 0; height: 1px; background-color: #fbe0e8; margin: 60px auto; width: 80%; }
-@media (max-width: 768px) { .navbar .logo img { height: 60px; } main { padding: 15px; } .produtos-container { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); } .produto img { height: 200px; } }
-@media (max-width: 480px) { .produtos-container { grid-template-columns: 1fr; } }
-@media (min-width: 769px) { .menu-hamburguer { display: none; } .navbar { justify-content: center; } }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+body {
+    background-color: #fffafb;
+    color: #333;
+    line-height: 1.6;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background: linear-gradient(135deg, #f8f0f4 0%, #ffe6ee 100%);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(215, 84, 126, 0.1);
+}
+
+.menu-hamburguer {
+    font-size: 2.5rem;
+    cursor: pointer;
+    color: #d7547e;
+    transition: transform 0.3s ease;
+}
+
+.menu-hamburguer:hover {
+    transform: scale(1.1);
+}
+
+.navbar .logo img {
+    height: 70px;
+    width: auto;
+    transition: transform 0.3s ease;
+}
+
+.navbar .logo img:hover {
+    transform: scale(1.05);
+}
+
+.menu-lateral {
+    position: fixed;
+    top: 0;
+    left: -300px; /* Inicialmente escondido */
+    width: 300px;
+    height: 100%;
+    background: linear-gradient(180deg, #f8f0f4 0%, #ffe6ee 100%);
+    overflow-y: auto;
+    z-index: 2000;
+    transition: left 0.4s ease;
+    padding: 15px; /* Ajustado para melhor espaçamento da logo */
+    box-shadow: 2px 0 15px rgba(0, 0, 0, 0.1);
+}
+
+.menu-lateral.show {
+    left: 0;
+}
+
+/* Novo estilo para o cabeçalho do menu lateral (logo e fechar) */
+.menu-lateral-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0; /* Espaçamento interno */
+    margin-bottom: 20px; /* Espaço abaixo do cabeçalho */
+    border-bottom: 1px solid rgba(215, 84, 126, 0.2); /* Linha divisória suave */
+}
+
+.logo-menu img {
+    height: 60px; /* Tamanho da logo no menu lateral */
+    width: auto;
+    margin-left: 10px; /* Espaçamento da borda esquerda */
+}
+
+.menu-fechar {
+    font-size: 2.8rem;
+    color: #d7547e;
+    cursor: pointer;
+    line-height: 1; /* Alinha o 'x' melhor */
+    transition: color 0.3s ease;
+    padding: 5px; /* Área clicável maior */
+    margin-right: 10px; /* Espaçamento da borda direita */
+}
+
+.menu-fechar:hover {
+    color: #b33c62;
+}
+
+.menu-lateral ul {
+    list-style: none;
+}
+
+.menu-lateral ul li a {
+    text-decoration: none;
+    font-weight: bold;
+    color: #d7547e;
+    font-size: 1.3rem;
+    padding: 12px 15px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.menu-lateral ul li a:hover {
+    background-color: #d7547e;
+    color: white;
+    transform: translateX(5px);
+}
+
+main {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    transition: margin-left 0.4s ease;
+}
+
+/* Quando o menu estiver aberto, empurra o main */
+body.menu-open main {
+    margin-left: 300px;
+}
+
+section {
+    margin-bottom: 40px;
+    animation: fadeIn 0.6s ease-out;
+}
+
+section h2 {
+    color: #d7547e;
+    margin-bottom: 25px;
+    font-size: 2rem;
+    text-align: center;
+}
+
+.produtos-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
+}
+
+.produto {
+    border: 1px solid #f0f0f0;
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+    background: white;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+}
+
+.produto:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(215, 84, 126, 0.2);
+    border-color: #d7547e;
+}
+
+.produto img {
+    width: 100%;
+    height: 250px;
+    object-fit: contain;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    transition: transform 0.3s ease;
+    background-color: #f8f0f4;
+    padding: 10px;
+}
+
+.produto:hover img {
+    transform: scale(1.05);
+}
+
+.produto h3 {
+    font-size: 1.2rem;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.produto p {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 15px;
+    line-height: 1.5;
+}
+
+.produto span {
+    font-weight: bold;
+    color: #d7547e;
+    font-size: 1.3rem;
+    display: block;
+    margin-top: auto;
+}
+
+footer {
+    background: linear-gradient(135deg, #f8f0f4 0%, #ffe6ee 100%);
+    padding: 30px 20px;
+    text-align: center;
+    margin-top: 50px;
+}
+
+.footer-content p {
+    color: #d7547e;
+    margin: 5px 0;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 3000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+}
+
+.modal-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 600px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+    transform: translateY(-20px);
+    transition: transform 0.3s;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-overlay.show .modal-content {
+    transform: translateY(0);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.modal-header h2 {
+    color: #d7547e;
+    font-size: 1.8rem;
+    margin: 0;
+}
+
+.modal-close {
+    font-size: 2.5rem;
+    color: #aaa;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s;
+}
+
+.modal-close:hover {
+    color: #333;
+}
+
+.modal-body img {
+    width: 100%;
+    max-height: 350px;
+    object-fit: contain;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    background-color: #f8f0f4;
+}
+
+.modal-body p {
+    font-size: 1.1rem;
+    color: #666;
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.modal-body span {
+    display: block;
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #d7547e;
+    text-align: right;
+    margin-top: 20px;
+}
+
+#modal-extra-details p {
+    margin-bottom: 8px;
+    font-size: 1rem;
+}
+
+.contact-popup-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 20px;
+}
+
+.contact-popup-list li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.contact-popup-list .icon {
+    flex-shrink: 0;
+    fill: #d7547e;
+    width: 28px;
+    height: 28px;
+    margin-right: 20px;
+}
+
+.contact-popup-list a {
+    text-decoration: none;
+    color: #333;
+    font-size: 1.1rem;
+    font-weight: bold;
+    transition: color 0.3s ease;
+    word-break: break-all;
+}
+
+.contact-popup-list a:hover {
+    color: #d7547e;
+    text-decoration: underline;
+}
+
+.section-divider {
+    border: 0;
+    height: 1px;
+    background-color: #fbe0e8;
+    margin: 60px auto;
+    width: 80%;
+}
+
+/* Responsividade */
+
+@media (max-width: 768px) {
+    .navbar .logo img {
+        height: 60px;
+    }
+    main {
+        padding: 15px;
+        margin-left: 0 !important;
+    }
+    .produtos-container {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+    body.menu-open main {
+        margin-left: 0;
+    }
+}
