@@ -1,0 +1,50 @@
+const mongoose = require('mongoose');
+const bcryptjs = require('bcryptjs');
+
+const userSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  username: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  password: {
+    type: String,
+    required: true
+  },
+  status: {
+    type: String,
+    enum: ['pending', 'approved'],
+    default: 'pending'
+  },
+  dataCriacao: {
+    type: Date,
+    default: Date.now
+  }
+});
+
+userSchema.pre('save', async function(next) {
+  if (!this.isModified('password')) return next();
+  
+  try {
+    const salt = await bcryptjs.genSalt(10);
+    this.password = await bcryptjs.hash(this.password, salt);
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
+userSchema.methods.compararSenha = async function(senhaPlana) {
+  return await bcryptjs.compare(senhaPlana, this.password);
+};
+
+module.exports = mongoose.model('User', userSchema);
