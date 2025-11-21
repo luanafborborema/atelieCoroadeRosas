@@ -1,0 +1,57 @@
+# 🚨 ERRO: net::ERR_CONNECTION_REFUSED
+
+## O que é?
+O servidor backend não está rodando.
+
+---
+
+## ✅ SOLUÇÃO EM 3 CLIQUES
+
+### 1️⃣ Primeiro: Clique 2 vezes neste arquivo
+
+```
+📁 C:\Users\Cliente\Documents\atelieCoroadeRosas-main
+   📄 INICIAR_MONGODB.bat  ← CLIQUE AQUI
+```
+
+Deixe aberto.
+
+---
+
+### 2️⃣ Segundo: Clique 2 vezes neste arquivo
+
+```
+📁 C:\Users\Cliente\Documents\atelieCoroadeRosas-main
+   📄 INICIAR_SERVIDOR.bat  ← CLIQUE AQUI
+```
+
+Deixe aberto.
+
+---
+
+### 3️⃣ Terceiro: Recarregue a página
+
+No navegador:
+- Pressione `Ctrl + R` 
+- Ou clique no botão de recarregar
+
+---
+
+## 🎉 PRONTO!
+
+O erro desapareceu!
+
+---
+
+## 📌 LEMBRE-SE
+
+As 2 janelas SEMPRE precisam estar abertas:
+- ✅ INICIAR_MONGODB.bat
+- ✅ INICIAR_SERVIDOR.bat
+
+Se fechar uma → erro volta
+Se abrir novamente → erro sai
+
+---
+
+**Fim! Agora funciona! 🌹**
