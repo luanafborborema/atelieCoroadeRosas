@@ -76,30 +76,15 @@
             <span class="modal-close" onclick="fecharPopupContato()">&times;</span>
         </div>
         <div class="modal-body">
-            <ul class="contact-popup-list">
-                <li>
-                    <svg class="icon" viewBox="0 0 24 24"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38c1.45.79 3.08 1.21 4.79 1.21 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zM12.04 20.6c-1.61 0-3.19-.48-4.57-1.37l-.33-.19-3.41.9.92-3.32-.21-.35c-.96-1.58-1.47-3.4-1.47-5.28 0-4.6 3.73-8.33 8.33-8.33s8.33 3.73 8.33 8.33c0 4.6-3.73 8.33-8.33 8.33zm4.52-6.13c-.25-.12-1.47-.72-1.7-.81-.23-.08-.39-.12-.56.12s-.64.81-.79.97c-.14.17-.29.19-.54.06s-1.06-.39-2.02-1.25c-.75-.67-1.25-1.5-1.4-1.75-.14-.25-.02-.38.11-.51s.25-.29.37-.43c.13-.14.17-.25.25-.41.08-.17.04-.31-.02-.43s-.56-1.34-.76-1.84c-.2-.48-.41-.42-.56-.42h-.48c-.17 0-.43.06-.66.31s-.86.85-.86 2.07c0 1.22.88 2.4 1 2.56.12.17 1.73 2.63 4.2 3.68.59.25 1.05.4 1.41.51.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.14-1.18s-.2-.19-.44-.31z"/></svg>
-                    <a href="https://api.whatsapp.com/send?phone=5544991662198" target="_blank">(44) 99166-2198</a>
-                </li>
-                <li>
-                    <svg class="icon" viewBox="0 0 24 24"><path d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6zm-2 0l-8 5-8-5h16zm0 12H4V8l8 5 8-5v10z"/></svg>
-                    <a href="mailto:luanaferreiraborborema489@gmail.com">luanaferreiraborborema489@gmail.com</a>
-                </li>
-                <li>
-                    <svg class="icon" viewBox="0 0 24 24"><path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4H7.6m9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8 1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/></svg>
-                    <a href="https://www.instagram.com/atelie.coroaderosas/" target="_blank">@atelie.coroaderosas (Loja)</a>
-                </li>
-                <li>
-                    <svg class="icon" viewBox="0 0 24 24"><path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4H7.6m9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8 1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/></svg>
-                    <a href="https://www.instagram.com/luanafborborema/" target="_blank">@luanafborborema (Pessoal)</a>
-                </li>
+            <ul class="contact-popup-list" id="contatoList">
+                <!-- Preenchido dinamicamente por JavaScript -->
             </ul>
         </div>
     </div>
 </div>
 
 <script>
-    const API_URL = "https://atelie-backend-luana.onrender.com";
+    const API_URL = (location.hostname === 'localhost' || location.hostname === '127.0.0.1') ? 'http://localhost:5000' : 'https://seu-backend.com';
     document.getElementById('adminLink').addEventListener('click', () => { window.location.href = 'admin.html'; });
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -126,11 +111,12 @@
         });
 
         carregarProdutos();
+        carregarContatos();
     });
 
     async function carregarProdutos() {
         try {
-            const response = await fetch(`${API_URL}/produtos`);
+            const response = await fetch(`${API_URL}/api/products/list`);
             if (!response.ok) throw new Error('Falha ao carregar produtos.');
             const produtos = await response.json();
             const containers = {
@@ -153,11 +139,23 @@
             document.querySelectorAll('.produtos-container').forEach(c => c.innerHTML = '<p>Não foi possível carregar os produtos.</p>');
         }
     }
+
+    async function carregarContatos() {
+        try {
+            const response = await fetch(`${API_URL}/api/contacts/get`);
+            if (response.ok) {
+                const contatos = await response.json();
+                window.contatosDoBanco = contatos;
+            }
+        } catch (error) {
+            console.error('Erro ao carregar contatos:', error);
+        }
+    }
     
     const modal = document.getElementById('detalhesModal');
     async function mostrarDetalhes(id) {
         try {
-            const response = await fetch(`${API_URL}/produtos/${id}`);
+            const response = await fetch(`${API_URL}/api/products/${id}`);
             if (!response.ok) throw new Error('Produto não encontrado.');
             const p = await response.json();
             document.getElementById('modalNome').innerText = p.nome;
@@ -207,6 +205,54 @@
     const contatoModal = document.getElementById('contatoModal');
     function abrirPopupContato(event) {
         event.preventDefault();
+        const contatoList = document.getElementById('contatoList');
+        contatoList.innerHTML = '';
+        
+        if (window.contatosDoBanco) {
+            const c = window.contatosDoBanco;
+            
+            if (c.whatsapp) {
+                const whatsappNum = c.whatsapp.replace(/\D/g, '');
+                contatoList.innerHTML += `
+                    <li>
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38c1.45.79 3.08 1.21 4.79 1.21 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zM12.04 20.6c-1.61 0-3.19-.48-4.57-1.37l-.33-.19-3.41.9.92-3.32-.21-.35c-.96-1.58-1.47-3.4-1.47-5.28 0-4.6 3.73-8.33 8.33-8.33s8.33 3.73 8.33 8.33c0 4.6-3.73 8.33-8.33 8.33zm4.52-6.13c-.25-.12-1.47-.72-1.7-.81-.23-.08-.39-.12-.56.12s-.64.81-.79.97c-.14.17-.29.19-.54.06s-1.06-.39-2.02-1.25c-.75-.67-1.25-1.5-1.4-1.75-.14-.25-.02-.38.11-.51s.25-.29.37-.43c.13-.14.17-.25.25-.41.08-.17.04-.31-.02-.43s-.56-1.34-.76-1.84c-.2-.48-.41-.42-.56-.42h-.48c-.17 0-.43.06-.66.31s-.86.85-.86 2.07c0 1.22.88 2.4 1 2.56.12.17 1.73 2.63 4.2 3.68.59.25 1.05.4 1.41.51.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.14-1.18s-.2-.19-.44-.31z"/></svg>
+                        <a href="https://api.whatsapp.com/send?phone=${whatsappNum}" target="_blank">${c.whatsapp}</a>
+                    </li>
+                `;
+            }
+            
+            if (c.email) {
+                contatoList.innerHTML += `
+                    <li>
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6zm-2 0l-8 5-8-5h16zm0 12H4V8l8 5 8-5v10z"/></svg>
+                        <a href="mailto:${c.email}">${c.email}</a>
+                    </li>
+                `;
+            }
+            
+            if (c.instagramLoja) {
+                contatoList.innerHTML += `
+                    <li>
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4H7.6m9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8 1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/></svg>
+                        <a href="https://www.instagram.com/${c.instagramLoja.replace('@', '')}" target="_blank">${c.instagramLoja} (Loja)</a>
+                    </li>
+                `;
+            }
+            
+            if (c.instagramPessoal) {
+                contatoList.innerHTML += `
+                    <li>
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4H7.6m9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8 1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/></svg>
+                        <a href="https://www.instagram.com/${c.instagramPessoal.replace('@', '')}" target="_blank">${c.instagramPessoal} (Pessoal)</a>
+                    </li>
+                `;
+            }
+        }
+        
+        if (contatoList.innerHTML === '') {
+            contatoList.innerHTML = '<li><p>Contatos não disponíveis no momento.</p></li>';
+        }
+        
         contatoModal.classList.add('show');
     }
     function fecharPopupContato() {

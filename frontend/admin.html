@@ -1,165 +1,344 @@
-<!-- START OF FILE admin.html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Ateliê Coroa de Rosas</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        .admin-container{max-width:800px;margin:50px auto;padding:30px;background:#fff;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.1)}.admin-title{text-align:center;color:#d7547e;margin-bottom:30px;font-size:2rem;border-bottom:2px solid #f8f0f4;padding-bottom:15px}.form-group{margin-bottom:20px}.form-group label{display:block;margin-bottom:8px;font-weight:700;color:#333}.form-group input,.form-group select,.form-group textarea{width:100%;padding:12px;border:2px solid #f0f0f0;border-radius:8px;font-size:1rem;transition:border-color .3s ease}.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:#d7547e}.btn-admin{background:linear-gradient(135deg,#d7547e 0,#b33c62 100%);color:#fff;padding:15px 30px;border:none;border-radius:8px;font-size:1.1rem;font-weight:700;cursor:pointer;width:100%;transition:transform .3s ease}.btn-admin:hover{transform:translateY(-2px)}.error-message,.success-message{text-align:center;margin-top:15px;display:none;padding:10px;border-radius:8px}.error-message{color:#e74c3c;background-color:#fdd}.success-message{color:#27ae60;background-color:#e0f8e0}.login-form{display:block}.admin-panel{display:none}#gerenciarProdutos{margin-top:50px}#listaProdutosAdmin{list-style:none;padding:0}.produto-item-admin{display:flex;align-items:center;justify-content:space-between;padding:10px;border-bottom:1px solid #eee}.produto-item-admin:last-child{border-bottom:none}.produto-item-admin span{font-weight:700}
-        .actions-container { display: flex; align-items: center; gap: 15px; } .views-count { color:#666; font-size: 0.9rem; font-weight: bold; }
-        .btn-action{padding:5px 10px;border:none;border-radius:5px;cursor:pointer;color:#fff;font-size:0.9rem}.btn-edit{background-color:#3498db;margin-right:5px}.btn-delete{background-color:#e74c3c}#cancelarEdicaoBtn{width:auto;background:#7f8c8d;margin-top:10px;display:none}
-        #imagensURLs { min-height: 100px; }
-    </style>
+    <title>Painel Administrativo - Ateliê Coroa de Rosas</title>
+    <link rel="stylesheet" href="admin.css">
 </head>
 <body>
-<header><nav class="navbar"><div class="logo"><a href="index.html"><img src="imagens/logo.coroaderosas.png" alt="Logo"></a></div></nav></header>
-<div class="admin-container">
-    <div class="login-form" id="loginForm"><h2 class="admin-title">Acesso Administrativo</h2><div class="form-group"><label for="senha">Senha:</label><input type="password" id="senha" placeholder="Digite a senha" onkeydown="if(event.key==='Enter') verificarSenha()"></div><button class="btn-admin" onclick="verificarSenha()">Acessar</button><div class="error-message" id="loginError"></div></div>
-    <div class="admin-panel" id="adminPanel"><div id="formContainer"><h2 class="admin-title" id="formTitle">Cadastrar Novo Produto</h2><input type="hidden" id="produtoId">
-        <div class="form-group"><label for="categoria">Categoria:</label><select id="categoria"><option value="tercos">Terços</option><option value="chaveiros">Chaveiros</option><option value="pulseiras">Pulseiras</option></select></div>
-        <div class="form-group"><label for="nomeProduto">Nome:</label><input type="text" id="nomeProduto" placeholder="Ex: Terço Tradicional"></div>
-        <div class="form-group"><label for="descricao">Descrição:</label><textarea id="descricao" placeholder="Descreva o produto..."></textarea></div>
-        <div class="form-group"><label for="pedrasAveMaria">Pedras (Ave-Maria):</label><input type="text" id="pedrasAveMaria" placeholder="Opcional"></div>
-        <div class="form-group"><label for="pedrasPaiNosso">Pedras (Pai Nosso):</label><input type="text" id="pedrasPaiNosso" placeholder="Opcional"></div>
-        <div class="form-group"><label for="detalhesCrucifixo">Crucifixo e entremeio:</label><input type="text" id="detalhesCrucifixo" placeholder="Opcional"></div>
-        <div class="form-group"><label for="divisao">Divisões:</label><input type="text" id="divisao" placeholder="Opcional"></div>
-        <div class="form-group"><label for="preco">Preço (R$):</label><input type="number" id="preco" step="0.01" placeholder="Ex: 25.00"></div>
-    <div class="form-group"><label for="imagensFiles">Escolher imagens (ou cole URLs abaixo):</label><input type="file" id="imagensFiles" multiple accept="image/*"></div>
-    <div class="form-group"><label for="formatSelect">Formatar imagens para:</label><select id="formatSelect"><option value="image/jpeg">JPG (boa compatibilidade)</option><option value="image/png">PNG (sem perdas)</option><option value="image/webp">WebP (menor tamanho)</option></select></div>
-    <div class="form-group"><label for="imagensURLs">URLs das Imagens:</label><textarea id="imagensURLs" placeholder="Cole os links diretos das imagens aqui, um link por linha..."></textarea><small style="color:#777">Você pode enviar arquivos locais ou colar links diretos; arquivos serão convertidos e enviados ao servidor.</small></div>
-        <button class="btn-admin" id="formButton" onclick="submeterFormulario()">Cadastrar Produto</button><button class="btn-admin" id="cancelarEdicaoBtn" onclick="cancelarEdicao()">Cancelar Edição</button>
-        <div class="success-message" id="formSuccess"></div><div class="error-message" id="formError"></div>
-    </div><div id="gerenciarProdutos"><h2 class="admin-title">Gerenciar Produtos</h2><ul id="listaProdutosAdmin"></ul></div></div>
+
+<div id="loginContainer" class="login-container active">
+    <div class="login-card">
+        <div class="login-header">
+            <img src="imagens/logo.coroaderosas.png" alt="Logo" class="login-logo">
+            <h1>Painel Administrativo</h1>
+            <p>Ateliê Coroa de Rosas</p>
+        </div>
+        
+        <div class="info-box">
+            <strong>ℹ️ Como funciona:</strong>
+            <p>A primeira conta criada será aprovada automaticamente. As demais contas precisam de autorização de um administrador para acessar o painel.</p>
+        </div>
+        
+        <form id="loginForm" class="login-form">
+            <div class="form-group">
+                <label for="loginUsername">Usuário</label>
+                <input type="text" id="loginUsername" placeholder="Digite seu usuário" required>
+            </div>
+            <div class="form-group">
+                <label for="loginPassword">Senha</label>
+                <input type="password" id="loginPassword" placeholder="Digite sua senha" required>
+            </div>
+            <button type="submit" class="btn-primary btn-login">Entrar</button>
+            <p class="login-footer">Não tem conta? <a href="#" id="linkCriarConta">Crie uma agora</a></p>
+        </form>
+    </div>
 </div>
-<footer style="margin-top: 100px; padding: 20px; text-align: center; color: #aaa;"><p>Desenvolvido por <strong>Luana Borborema</strong></p><p style="font-size: 0.9rem; margin-top: 10px;">Contato: (44) 99166-2198 | luanaferreiraborborema489@gmail.com</p></footer>
-<script>
-    const API_URL = (location.hostname === 'localhost' || location.hostname === '127.0.0.1') ? 'http://localhost:3001' : 'https://atelie-backend-luana.onrender.com';
-    let pollingInterval = null;
-    async function handleFetch(url, options) { try { const response = await fetch(url, options); const data = await response.json(); if (!response.ok) throw new Error(data.error || `Erro de servidor: ${response.status}`); return data; } catch (error) { console.error('Erro na comunicação com a API:', error); throw error; } }
-    function showMessage(elementId, message) { const el = document.getElementById(elementId); el.textContent = message; el.style.display = 'block'; setTimeout(() => { el.style.display = 'none'; }, 5000); }
-    async function verificarSenha() { try { await handleFetch(`${API_URL}/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ senha: document.getElementById('senha').value }) }); document.getElementById('loginForm').style.display = 'none'; document.getElementById('adminPanel').style.display = 'block'; carregarProdutosAdmin(); iniciarPollingDeVisualizacoes(); } catch (error) { showMessage('loginError', error.message); } }
-    async function carregarProdutosAdmin() {
-        const lista = document.getElementById('listaProdutosAdmin'); lista.innerHTML = '<li>Carregando...</li>';
-        try { const produtos = await handleFetch(`${API_URL}/produtos`); lista.innerHTML = ''; if (produtos.length === 0) { lista.innerHTML = '<li>Nenhum produto cadastrado.</li>'; return; } produtos.forEach(p => { const item = document.createElement('li'); item.className = 'produto-item-admin'; item.innerHTML = `<span>${p.nome}</span><div class="actions-container"><span class="views-count" id="view-count-${p._id}">👁️ ${p.visualizacoes || 0}</span><div><button class="btn-action btn-edit" onclick="prepararEdicao('${p._id}')">Editar</button><button class="btn-action btn-delete" onclick="excluirProduto('${p._id}', '${p.nome}')">Excluir</button></div></div>`; lista.appendChild(item); }); } catch (error) { lista.innerHTML = `<li>Erro: ${error.message}</li>`; }
-    }
-    async function atualizarContagemDeVisualizacoes() {
-        try { const produtos = await handleFetch(`${API_URL}/produtos`); produtos.forEach(p => { const viewElement = document.getElementById(`view-count-${p._id}`); if (viewElement) { viewElement.innerText = `👁️ ${p.visualizacoes || 0}`; } }); } catch (error) { console.error("Erro no polling:", error.message); clearInterval(pollingInterval); }
-    }
-    function iniciarPollingDeVisualizacoes() { if (pollingInterval) { clearInterval(pollingInterval); } pollingInterval = setInterval(atualizarContagemDeVisualizacoes, 5000); }
-    async function excluirProduto(id, nome) { if (!confirm(`Tem certeza que deseja excluir "${nome}"?`)) return; try { await handleFetch(`${API_URL}/produtos/${id}`, { method: 'DELETE' }); showMessage('formSuccess', `Produto "${nome}" excluído!`); carregarProdutosAdmin(); } catch (error) { showMessage('formError', `Erro ao excluir: ${error.message}`); } }
-    async function prepararEdicao(id) {
-        try {
-            const produto = await handleFetch(`${API_URL}/produtos/${id}`);
-            document.getElementById('formTitle').innerText = 'Editando Produto';
-            document.getElementById('produtoId').value = produto._id;
-            ['categoria', 'nomeProduto', 'descricao', 'preco', 'pedrasAveMaria', 'pedrasPaiNosso', 'detalhesCrucifixo', 'divisao'].forEach(key => { document.getElementById(key).value = produto[key.replace('nomeProduto', 'nome')] || ''; });
-            const imagensAtuais = (produto.imagens && produto.imagens.length > 0) ? produto.imagens : (produto.imagem ? [produto.imagem] : []);
-            document.getElementById('imagensURLs').value = imagensAtuais.join('\n');
-            document.getElementById('formButton').innerText = 'Salvar Alterações'; document.getElementById('cancelarEdicaoBtn').style.display = 'block'; window.scrollTo({ top: 0, behavior: 'smooth' });
-        } catch (error) { showMessage('formError', error.message); }
-    }
-    function cancelarEdicao() {
-        document.getElementById('formTitle').innerText = 'Cadastrar Novo Produto';
-        ['produtoId', 'nomeProduto', 'descricao', 'preco', 'pedrasAveMaria', 'pedrasPaiNosso', 'detalhesCrucifixo', 'divisao', 'imagensURLs'].forEach(id => { document.getElementById(id).value = ''; });
-        document.getElementById('categoria').value = 'tercos'; document.getElementById('formButton').innerText = 'Cadastrar Produto'; document.getElementById('cancelarEdicaoBtn').style.display = 'none';
-    }
-    async function submeterFormulario() {
-        const produtoId = document.getElementById('produtoId').value;
-        const isEditing = !!produtoId;
-        try {
-            // primeiro: pega URLs já coladas
-            const urlsTexto = document.getElementById('imagensURLs').value;
-            let urlsArray = urlsTexto.split('\n').map(url => url.trim()).filter(url => url);
 
-            // se houver arquivos selecionados, converte no cliente e faz upload
-            const fileInput = document.getElementById('imagensFiles');
-            if (fileInput && fileInput.files && fileInput.files.length > 0) {
-                const files = Array.from(fileInput.files);
-                const targetType = document.getElementById('formatSelect').value || 'image/jpeg';
-                // converte cada arquivo para Blob no formato escolhido
-                const convertedBlobs = await Promise.all(files.map(f => convertImageFileToType(f, targetType)));
-                const formData = new FormData();
-                convertedBlobs.forEach((b, i) => {
-                    const ext = mimeToExt(b.type);
-                    formData.append('images', b, `img_${Date.now()}_${i}.${ext}`);
-                });
-                // tenta enviar ao backend; se receber 404 ou erro de conexão, avisa e pede para colar URLs manualmente
-                try {
-                    const uploadResp = await fetch(`${API_URL}/upload`, { method: 'POST', body: formData });
-                    const uploadData = await uploadResp.json().catch(() => null);
-                    if (!uploadResp.ok) {
-                        if (uploadResp.status === 404) {
-                            showMessage('formError', 'Endpoint /upload não encontrado no servidor. Cole URLs manualmente ou verifique o backend.');
-                        } else {
-                            throw new Error(uploadData && uploadData.error ? uploadData.error : 'Erro no upload das imagens.');
-                        }
-                    } else {
-                        urlsArray = urlsArray.concat(uploadData.urls || []);
-                    }
-                } catch (err) {
-                    showMessage('formError', `Falha ao conectar para upload: ${err.message}. Cole URLs manualmente.`);
-                }
-            }
+<div id="registerContainer" class="register-container">
+    <div class="register-card">
+        <div class="register-header">
+            <img src="imagens/logo.coroaderosas.png" alt="Logo" class="register-logo">
+            <h1>Criar Conta de Administrador</h1>
+            <p>Preencha os dados abaixo</p>
+        </div>
+        <form id="registerForm" class="register-form">
+            <div class="form-group">
+                <label for="registerName">Nome Completo</label>
+                <input type="text" id="registerName" placeholder="Digite seu nome" required>
+            </div>
+            <div class="form-group">
+                <label for="registerEmail">E-mail</label>
+                <input type="email" id="registerEmail" placeholder="Digite seu e-mail" required>
+            </div>
+            <div class="form-group">
+                <label for="registerUsername">Usuário</label>
+                <input type="text" id="registerUsername" placeholder="Escolha um usuário" required>
+            </div>
+            <div class="form-group">
+                <label for="registerPassword">Senha</label>
+                <input type="password" id="registerPassword" placeholder="Crie uma senha" required>
+            </div>
+            <div class="form-group">
+                <label for="registerConfirmPassword">Confirmar Senha</label>
+                <input type="password" id="registerConfirmPassword" placeholder="Confirme a senha" required>
+            </div>
+            <button type="submit" class="btn-primary btn-register">Criar Conta</button>
+            <p class="register-footer">Já tem uma conta? <a href="#" id="linkVoltarLogin">Voltar para login</a></p>
+        </form>
+    </div>
+</div>
 
-            if (urlsArray.length === 0) { throw new Error('Pelo menos uma imagem (arquivo ou URL) é obrigatória.'); }
+<div id="adminPanel" class="admin-panel">
+    <header class="admin-header">
+        <div class="admin-header-left">
+            <img src="imagens/logo.coroaderosas.png" alt="Logo" class="admin-logo">
+            <h1>Painel Administrativo</h1>
+        </div>
+        <div class="admin-header-right">
+            <span id="adminUsername" class="admin-user"></span>
+            <button id="logoutBtn" class="btn-logout">Sair</button>
+        </div>
+    </header>
 
-            const produtoData = {
-                categoria: document.getElementById('categoria').value,
-                nome: document.getElementById('nomeProduto').value,
-                descricao: document.getElementById('descricao').value,
-                preco: parseFloat(document.getElementById('preco').value),
-                imagens: urlsArray,
-                pedrasAveMaria: document.getElementById('pedrasAveMaria').value,
-                pedrasPaiNosso: document.getElementById('pedrasPaiNosso').value,
-                detalhesCrucifixo: document.getElementById('detalhesCrucifixo').value,
-                divisao: document.getElementById('divisao').value
-            };
+    <nav class="admin-nav">
+        <button class="nav-item active" data-tab="dashboard">Dashboard</button>
+        <button class="nav-item" data-tab="products">Produtos</button>
+        <button class="nav-item" data-tab="contacts">Dados de Contato</button>
+        <button class="nav-item" data-tab="admins">Gestão de Admins</button>
+        <button class="nav-item" data-tab="profile">Minha Conta</button>
+    </nav>
 
-            if (isEditing) {
-                produtoData.imagem = undefined;
-            }
+    <!-- Dashboard -->
+    <div id="dashboard" class="tab-content active">
+        <div class="dashboard-container">
+            <h2>Bem-vindo ao Painel Administrativo</h2>
+            <p class="dashboard-intro">Gerencie todos os aspectos do seu atelier a partir daqui.</p>
 
-            const url = isEditing ? `${API_URL}/produtos/${produtoId}` : `${API_URL}/produtos`;
-            const method = isEditing ? 'PUT' : 'POST';
+            <div class="dashboard-cards">
+                <div class="dashboard-card">
+                    <div class="card-icon">📦</div>
+                    <h3>Produtos</h3>
+                    <p id="productsCount">0</p>
+                    <button class="btn-secondary" onclick="abrirAbaDados('products')">Gerenciar</button>
+                </div>
+                <div class="dashboard-card">
+                    <div class="card-icon">👥</div>
+                    <h3>Administradores</h3>
+                    <p id="adminsCount">0</p>
+                    <button class="btn-secondary" onclick="abrirAbaDados('admins')">Gerenciar</button>
+                </div>
+                <div class="dashboard-card">
+                    <div class="card-icon">📱</div>
+                    <h3>Contato</h3>
+                    <p>Editar dados</p>
+                    <button class="btn-secondary" onclick="abrirAbaDados('contacts')">Editar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-            await handleFetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(produtoData) });
-            showMessage('formSuccess', `Produto ${isEditing ? 'atualizado' : 'cadastrado'}!`);
-            cancelarEdicao(); carregarProdutosAdmin();
-        } catch (error) { showMessage('formError', `Erro: ${error.message}`); }
-    }
+    <!-- Produtos -->
+    <div id="products" class="tab-content">
+        <div class="content-wrapper">
+            <div class="content-header">
+                <h2>Gerenciar Produtos</h2>
+                <button class="btn-primary" id="addProductBtn">+ Novo Produto</button>
+            </div>
 
-    // converte um File (imagem) para Blob no tipo targetType via canvas
-    function convertImageFileToType(file, targetType = 'image/jpeg', quality = 0.9) {
-        return new Promise((resolve, reject) => {
-            const img = new Image();
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                canvas.width = img.naturalWidth;
-                canvas.height = img.naturalHeight;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0);
-                canvas.toBlob(blob => {
-                    if (blob) resolve(blob);
-                    else reject(new Error('Falha ao converter imagem.'));
-                }, targetType, quality);
-            };
-            img.onerror = (e) => reject(new Error('Falha ao carregar imagem local.'));
-            const reader = new FileReader();
-            reader.onload = () => { img.src = reader.result; };
-            reader.onerror = () => reject(new Error('Erro ao ler o arquivo local.'));
-            reader.readAsDataURL(file);
-        });
-    }
+            <div id="productsTable" class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Categoria</th>
+                            <th>Preço</th>
+                            <th>Imagem</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productsTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
-    function mimeToExt(mime) {
-        if (!mime) return 'jpg';
-        if (mime.includes('jpeg')) return 'jpg';
-        if (mime.includes('png')) return 'png';
-        if (mime.includes('webp')) return 'webp';
-        return 'jpg';
-    }
-</script>
+    <!-- Modal Produto -->
+    <div id="productModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="productModalTitle">Novo Produto</h2>
+                <span class="modal-close" onclick="fecharModalProduto()">&times;</span>
+            </div>
+            <form id="productForm" class="product-form">
+                <div class="form-group">
+                    <label for="productName">Nome do Produto</label>
+                    <input type="text" id="productName" required>
+                </div>
+                <div class="form-group">
+                    <label for="productCategory">Categoria</label>
+                    <select id="productCategory" required>
+                        <option value="">Selecione uma categoria</option>
+                        <option value="tercos">Terços</option>
+                        <option value="chaveiros">Chaveiros</option>
+                        <option value="pulseiras">Pulseiras</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="productPrice">Preço (R$)</label>
+                    <input type="number" id="productPrice" step="0.01" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="productDescription">Descrição</label>
+                    <textarea id="productDescription" rows="4"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="productImages">Imagens (URLs, separadas por vírgula)</label>
+                    <textarea id="productImages" rows="3" placeholder="https://exemplo.com/img1.jpg, https://exemplo.com/img2.jpg"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="productBeadsAveMaria">Contas (Ave-Maria)</label>
+                    <input type="text" id="productBeadsAveMaria" placeholder="Ex: Cristal branco">
+                </div>
+                <div class="form-group">
+                    <label for="productBeadsPaiNosso">Contas (Pai Nosso)</label>
+                    <input type="text" id="productBeadsPaiNosso" placeholder="Ex: Cristal espelhado">
+                </div>
+                <div class="form-group">
+                    <label for="productCrucifixDetails">Crucifixo e Entremeio</label>
+                    <input type="text" id="productCrucifixDetails" placeholder="Ex: Crucifixo dourado">
+                </div>
+                <div class="form-group">
+                    <label for="productDivision">Divisões</label>
+                    <input type="text" id="productDivision" placeholder="Ex: Divisões douradas">
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Salvar Produto</button>
+                    <button type="button" class="btn-secondary" onclick="fecharModalProduto()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dados de Contato -->
+    <div id="contacts" class="tab-content">
+        <div class="content-wrapper">
+            <h2>Editar Dados de Contato</h2>
+            <form id="contactsForm" class="contacts-form">
+                <div class="form-group">
+                    <label for="contactWhatsApp">WhatsApp</label>
+                    <input type="text" id="contactWhatsApp" placeholder="(44) 99166-2198">
+                </div>
+                <div class="form-group">
+                    <label for="contactInstagramLoja">Instagram - Loja</label>
+                    <input type="text" id="contactInstagramLoja" placeholder="@atelie.coroaderosas">
+                </div>
+                <div class="form-group">
+                    <label for="contactInstagramPessoal">Instagram - Pessoal</label>
+                    <input type="text" id="contactInstagramPessoal" placeholder="@luanafborborema">
+                </div>
+                <div class="form-group">
+                    <label for="contactEmail">E-mail</label>
+                    <input type="email" id="contactEmail" placeholder="seu@email.com">
+                </div>
+                <div class="form-group">
+                    <label for="contactAddress">Endereço</label>
+                    <textarea id="contactAddress" rows="3" placeholder="Digite o endereço completo"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Gestão de Administradores -->
+    <div id="admins" class="tab-content">
+        <div class="content-wrapper">
+            <div class="section-header">
+                <h2>Gestão de Administradores</h2>
+                <div class="header-actions">
+                    <span id="autoRefreshStatus" class="auto-refresh-badge">🔄 Auto-refresh ativo</span>
+                    <button class="btn-refresh" onclick="carregarAdmins()" title="Recarregar lista de administradores">🔄 Recarregar</button>
+                </div>
+            </div>
+
+            <div class="admins-tabs">
+                <button class="admins-tab-btn active" data-admin-tab="pending">Contas Pendentes</button>
+                <button class="admins-tab-btn" data-admin-tab="approved">Contas Aprovadas</button>
+            </div>
+
+            <div id="pendingAdmins" class="admin-tab-content active">
+                <h3>Contas Aguardando Aprovação</h3>
+                <div id="pendingAdminsTable" class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Usuário</th>
+                                <th>E-mail</th>
+                                <th>Data</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pendingAdminsTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="approvedAdmins" class="admin-tab-content">
+                <h3>Contas Aprovadas</h3>
+                <div id="approvedAdminsTable" class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Usuário</th>
+                                <th>E-mail</th>
+                                <th>Data de Criação</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="approvedAdminsTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Minha Conta -->
+    <div id="profile" class="tab-content">
+        <div class="content-wrapper">
+            <h2>Minha Conta</h2>
+            <form id="profileForm" class="profile-form">
+                <div class="form-group">
+                    <label for="profileName">Nome Completo</label>
+                    <input type="text" id="profileName" required>
+                </div>
+                <div class="form-group">
+                    <label for="profileEmail">E-mail</label>
+                    <input type="email" id="profileEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="profileUsername">Usuário</label>
+                    <input type="text" id="profileUsername" required>
+                </div>
+                <div class="form-group">
+                    <label for="profileCurrentPassword">Senha Atual</label>
+                    <input type="password" id="profileCurrentPassword" placeholder="Digite sua senha atual">
+                </div>
+                <div class="form-group">
+                    <label for="profileNewPassword">Nova Senha (deixe em branco para manter a atual)</label>
+                    <input type="password" id="profileNewPassword" placeholder="Digite uma nova senha">
+                </div>
+                <div class="form-group">
+                    <label for="profileConfirmPassword">Confirmar Nova Senha</label>
+                    <input type="password" id="profileConfirmPassword" placeholder="Confirme a nova senha">
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="confirmModal" class="modal-overlay">
+    <div class="confirm-content">
+        <h3 id="confirmTitle">Confirmar Ação</h3>
+        <p id="confirmMessage"></p>
+        <div class="confirm-actions">
+            <button id="confirmBtn" class="btn-primary">Confirmar</button>
+            <button id="cancelBtn" class="btn-secondary">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<script src="admin.js"></script>
+
 </body>
 </html>
