@@ -1,111 +1,480 @@
-// --- START OF FILE server.js ---
 
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-require('dotenv').config();
+// server.js
+
+import express from 'express';
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+import cors from 'cors';
+import Veiculo from './models/Veiculo.js';
+import User from './models/User.js';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import authMiddleware from './middleware/auth.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import fetch from 'node-fetch'; // Importar node-fetch
+
+dotenv.config();
+
+// Prevent common Mongoose deprecation/warning about strictQuery in newer versions
+mongoose.set('strictQuery', false);
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const mongoUriCrud = process.env.MONGO_URI_CRUD;
+
+async function connectCrudDB() {
+    if (!mongoUriCrud) {
+        console.warn('⚠️ MONGO_URI_CRUD não configurada. O servidor continuará, mas a camada de persistência ficará indisponível.');
+        return;
+    }
+
+    if (mongoose.connections[0].readyState) {
+        console.log('ℹ️ Já conectado ao MongoDB.');
+        return;
+    }
+
+    try {
+        console.log('🔌 Conectando ao MongoDB...'); // nicer message
+        await mongoose.connect(mongoUriCrud, { serverSelectionTimeoutMS: 5000 });
+        console.log('🚀 Conectado ao MongoDB!');
+    } catch (err) {
+        // Log a compact message plus full error for debugging
+        console.error('❌ Erro ao conectar ao MongoDB:', err && err.message ? err.message : err);
+        // keep server running but mark mongoose disconnected
+        try { console.error(err); } catch (e) {}
+    }
+}
+
+// Tenta conectar ao banco; se não houver URI, o servidor ainda sobe (útil para desenvolvimento sem DB)
+connectCrudDB();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
-const path = require('path');
-const fs = require('fs');
-const multer = require('multer');
 
-// garante que a pasta uploads existe
-const uploadsDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir, { recursive: true });
+// MUITO IMPORTANTE: Serve os arquivos estáticos (CSS, JS, imagens, sons) da pasta frontend
+app.use(express.static(path.join(__dirname, '../frontend')));
+
+// ===========================================
+// Rotas da API
+// ===========================================
+
+// ---------- Autenticação: Registro e Login ----------
+const JWT_SECRET = process.env.JWT_SECRET || 'SEU_SEGREDO_SUPER_SECRETO_POR_EXEMPLO';
+
+if (!process.env.JWT_SECRET) {
+    console.warn('⚠️ Aviso: JWT_SECRET não configurado. Usando segredo padrão - configure JWT_SECRET em produção para segurança.');
 }
 
-// configura multer para salvar arquivos enviados
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, uploadsDir);
-    },
-    filename: function (req, file, cb) {
-        const timestamp = Date.now();
-        // preserva extensão do arquivo
-        const safeName = file.originalname.replace(/[^a-zA-Z0-9.\-_()\s]/g, '');
-        cb(null, `${timestamp}-${safeName}`);
-    }
-});
-const upload = multer({ storage });
-
-// serve arquivos estáticos de /uploads
-app.use('/uploads', express.static(uploadsDir));
-
-// endpoint para upload de imagens (recebe campo 'images')
-app.post('/upload', upload.array('images'), (req, res) => {
+app.post('/api/auth/register', async (req, res) => {
     try {
-        if (!req.files || req.files.length === 0) return res.status(400).json({ success: false, error: 'Nenhum arquivo enviado.' });
-        const baseUrl = process.env.BASE_URL || `http://localhost:${PORT}`;
-        const urls = req.files.map(f => `${baseUrl}/uploads/${encodeURIComponent(path.basename(f.path))}`);
-        res.json({ success: true, urls });
-    } catch (error) {
-        console.error('Erro no upload:', error);
-        res.status(500).json({ success: false, error: 'Erro ao processar upload.' });
-    }
-});
-
-const dbURI = process.env.MONGODB_URI || "mongodb://localhost:27017/atelieDB";
-mongoose.connect(dbURI).then(() => console.log('Conectado ao MongoDB!')).catch(err => console.error('Erro de conexão:', err));
-
-const produtoSchema = new mongoose.Schema({
-    categoria: { type: String, required: true },
-    nome: { type: String, required: true },
-    descricao: String,
-    preco: { type: Number, required: true },
-    imagem: String,     // Mantido apenas para compatibilidade temporária
-    imagens: [String],
-    visualizacoes: { type: Number, default: 0 },
-    pedrasAveMaria: { type: String, default: '' },
-    pedrasPaiNosso: { type: String, default: '' },
-    detalhesCrucifixo: { type: String, default: '' },
-    divisao: { type: String, default: '' }
-});
-const Produto = mongoose.model('Produto', produtoSchema);
-
-// Rotas simples
-app.post('/login', (req, res) => { const { senha } = req.body; const SENHA_CORRETA = process.env.ADMIN_PASSWORD || "nossasenhoradefatima"; if (senha === SENHA_CORRETA) res.json({ success: true }); else res.status(401).json({ success: false, error: 'Senha incorreta' }); });
-app.post('/produtos', async (req, res) => { try { const novoProduto = new Produto(req.body); await novoProduto.save(); res.status(201).json({ success: true, produto: novoProduto }); } catch (error) { res.status(400).json({ success: false, error: 'Erro ao cadastrar: ' + error.message }); } });
-app.get('/produtos', async (req, res) => { try { const produtos = await Produto.find().sort({ nome: 1 }); res.json(produtos); } catch (error) { res.status(500).json({ success: false, error: 'Erro ao buscar produtos.' }); } });
-app.delete('/produtos/:id', async (req, res) => { const { id } = req.params; if (!mongoose.Types.ObjectId.isValid(id)) { return res.status(400).json({ success: false, error: 'ID inválido.' }); } try { const produtoExcluido = await Produto.findByIdAndDelete(id); if (!produtoExcluido) { return res.status(404).json({ success: false, error: 'Produto não encontrado.' }); } res.json({ success: true, message: 'Produto excluído.' }); } catch (error) { res.status(500).json({ success: false, error: 'Erro interno do servidor.' }); } });
-app.get('/produtos/:id', async (req, res) => { if (!mongoose.Types.ObjectId.isValid(req.params.id)) { return res.status(400).json({ error: 'ID inválido.' }); } try { const produto = await Produto.findByIdAndUpdate(req.params.id, { $inc: { visualizacoes: 1 } }, { new: true }); if (!produto) { return res.status(404).json({ error: 'Produto não encontrado.' }); } res.json(produto); } catch (error) { res.status(500).json({ error: 'Erro ao buscar o produto.' }); } });
-
-// ROTA DE ATUALIZAÇÃO (EDITAR) COM LÓGICA DE APAGAR O CAMPO ANTIGO
-app.put('/produtos/:id', async (req, res) => {
-    const { id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(400).json({ success: false, error: 'ID inválido.' });
-    }
-    
-    const dadosAtualizados = req.body;
-    
-    // Cria a operação base para atualizar os campos
-    const operacaoDeUpdate = {
-        $set: dadosAtualizados
-    };
-    
-    // Se o frontend mandar a instrução 'imagem: undefined', nós instruímos o MongoDB a
-    // REMOVER completamente o campo 'imagem' do documento.
-    if ('imagem' in dadosAtualizados && dadosAtualizados.imagem === undefined) {
-        operacaoDeUpdate.$unset = { imagem: 1 };
-        delete dadosAtualizados.imagem; // Remove para não conflitar com $set
-    }
-    
-    try {
-        const produtoAtualizado = await Produto.findByIdAndUpdate(id, operacaoDeUpdate, { new: true });
-        if (!produtoAtualizado) {
-            return res.status(404).json({ success: false, error: 'Produto não encontrado para atualização.' });
+        const { name, email, password } = req.body;
+        if (!name || !name.trim() || !email || !password) {
+            // 16. Campos obrigatórios não preenchidos!
+            return res.status(400).json({ success: false, error: 'Campos obrigatórios não preenchidos!' });
         }
-        res.json({ success: true, produto: produtoAtualizado });
-    } catch (error) {
-        console.error("ERRO AO ATUALIZAR:", error);
-        res.status(500).json({ success: false, error: 'Erro interno do servidor ao atualizar.' });
+        const devAutoVerify = process.env.DEV_AUTO_VERIFY === '1' || process.env.NODE_ENV !== 'production';
+
+        const existing = await User.findOne({ email });
+        if (existing) {
+            // Se o usuário existe, mas não foi verificado, permite auto-verificar em dev para testes
+            if (!existing.verified && devAutoVerify) {
+                existing.verified = true;
+                existing.verificationToken = null;
+                await existing.save();
+                // Mensagem customizada para dev auto-verify
+                return res.status(200).json({ success: true, message: 'Conta já existia, mas foi verificada automaticamente (dev). Agora faça login.' });
+            }
+            // 11. Usuário já existe!
+            return res.status(409).json({ success: false, error: 'Usuário já existe!' });
+        }
+
+        const hashed = await bcrypt.hash(password, 10);
+        if (devAutoVerify) {
+            const user = await User.create({ name: name.trim(), email, password: hashed, verified: true, verificationToken: null });
+            // 1. Conta registrada com sucesso!
+            return res.status(201).json({ success: true, message: 'Conta registrada com sucesso! (Verificada automaticamente em modo dev)', user: { id: user._id, name: user.name, email: user.email } });
+        }
+
+        const verificationToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        const user = await User.create({ name: name.trim(), email, password: hashed, verified: false, verificationToken });
+        // 1. Conta registrada com sucesso! (com instrução de verificação)
+        res.status(201).json({ success: true, message: 'Conta registrada com sucesso! Verifique seu email para ativar a conta.', verificationToken, user: { id: user._id, name: user.name, email: user.email } });
+    } catch (err) {
+        console.error('Erro no register:', err);
+        // 14. Erro ao registrar a conta!
+        res.status(500).json({ success: false, error: 'Erro ao registrar a conta!' });
     }
 });
 
-app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
+app.post('/api/auth/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        if (!email || !password) {
+            // 16. Campos obrigatórios não preenchidos!
+            return res.status(400).json({ success: false, error: 'Campos obrigatórios não preenchidos!' });
+        }
+
+        const user = await User.findOne({ email });
+        if (!user) {
+            // 12. Usuário não encontrado!
+            // Para segurança, é melhor não informar se o email existe ou não.
+            // A mensagem "Credenciais inválidas" é mais genérica.
+            return res.status(401).json({ success: false, error: 'Credenciais inválidas.' });
+        }
+
+        if (!user.verified) {
+            // Mensagem de erro customizada para conta não verificada
+            return res.status(403).json({ success: false, error: 'Conta não verificada. Verifique seu email para ativar a conta.', verificationToken: user.verificationToken });
+        }
+
+        const ok = await bcrypt.compare(password, user.password);
+        if (!ok) {
+            // 13. Senha incorreta!
+            // Para segurança, é melhor não informar se a senha está incorreta para um email existente.
+            // A mensagem "Credenciais inválidas" é mais genérica.
+            return res.status(401).json({ success: false, error: 'Credenciais inválidas.' });
+        }
+
+        const token = jwt.sign({ userId: user._id, name: user.name, email: user.email }, JWT_SECRET, { expiresIn: '1h' });
+        // 2. Login realizado com sucesso!
+        res.json({ success: true, message: 'Login realizado com sucesso!', token, user: { id: user._id, name: user.name, email: user.email } });
+    } catch (err) {
+        console.error('Erro no login:', err);
+        // 15. Erro ao fazer login!
+        res.status(500).json({ success: false, error: 'Erro ao fazer login!' });
+    }
+});
+
+// Endpoint para verificar token de email
+app.get('/api/auth/verify/:token', async (req, res) => {
+    try {
+        const { token } = req.params;
+        const user = await User.findOne({ verificationToken: token });
+        if (!user) {
+            return res.status(400).json({ success: false, error: 'Token de verificação inválido.' });
+        }
+        user.verified = true;
+        user.verificationToken = null;
+        await user.save();
+        res.json({ success: true, message: 'Email verificado com sucesso. Agora você pode fazer login.' });
+    } catch (err) {
+        console.error('Erro ao verificar token:', err);
+        res.status(500).json({ success: false, error: 'Erro interno ao verificar token.' });
+    }
+});
+
+// ---------- Rotas de veículos protegidas por JWT ----------
+// ---------- Perfil do usuário: obter e atualizar (requer autenticação) ----------
+app.get('/api/auth/me', authMiddleware, async (req, res) => {
+    try {
+        const user = await User.findById(req.userId).select('-password -__v');
+        if (!user) return res.status(404).json({ success: false, error: 'Usuário não encontrado.' });
+        res.json({ success: true, user });
+    } catch (err) {
+        console.error('Erro em GET /api/auth/me', err);
+        res.status(500).json({ success: false, error: 'Erro ao obter dados do usuário.' });
+    }
+});
+
+app.patch('/api/auth/me', authMiddleware, async (req, res) => {
+    try {
+        const { password, name } = req.body;
+        // Não precisamos da senha para alterações de nome simples, a menos que seja uma alteração crítica.
+        // Para simplificar, vou remover a exigência de password para mudança de nome, mas se for alterar password, aí sim precisaria.
+        // Se a intenção é que *qualquer* alteração exija a senha atual, mantenha o código original.
+        // Por agora, vamos exigir a senha APENAS se a senha estiver sendo alterada.
+        
+        const user = await User.findById(req.userId);
+        if (!user) return res.status(404).json({ success: false, error: 'Usuário não encontrado.' });
+
+        // Se uma nova senha for fornecida, exige a senha atual
+        if (req.body.newPassword) {
+            if (!password) {
+                return res.status(400).json({ success: false, error: 'Senha atual é necessária para alterar a senha.' });
+            }
+            const ok = await bcrypt.compare(password, user.password);
+            if (!ok) {
+                return res.status(401).json({ success: false, error: 'Senha atual incorreta.' });
+            }
+            user.password = await bcrypt.hash(req.body.newPassword, 10);
+        } else {
+             // Se não está mudando a senha, não precisa da senha atual para mudar o nome
+             // mas podemos manter a verificação se quisermos que qualquer PATCH exija autenticação forte
+             if (password) { // se uma senha foi enviada, verifica se é a correta
+                const ok = await bcrypt.compare(password, user.password);
+                if (!ok) return res.status(401).json({ success: false, error: 'Senha incorreta.' });
+             }
+        }
+
+
+        if (name && typeof name === 'string') user.name = name.trim();
+        await user.save();
+        // return updated user without password
+        const safeUser = { id: user._id, name: user.name, email: user.email, createdAt: user.createdAt };
+        res.json({ success: true, message: 'Dados atualizados com sucesso.', user: safeUser });
+    } catch (err) {
+        console.error('Erro em PATCH /api/auth/me', err);
+        res.status(500).json({ success: false, error: 'Erro ao atualizar dados do usuário.' });
+    }
+});
+app.post('/api/veiculos', authMiddleware, async (req, res) => {
+    try {
+        const novoVeiculoData = { ...req.body, owner: req.userId };
+
+        // Limitação: permitir no máximo 1 criação de carro por usuário a cada 60 segundos
+        const tipoSolicitado = (req.body.tipo || '').toLowerCase();
+        const tiposLimitados = ['carro', 'esportivo'];
+        if (tiposLimitados.includes(tipoSolicitado)) {
+            const limiteIntervaloMs = 60 * 1000; // 1 minuto
+            const corte = new Date(Date.now() - limiteIntervaloMs);
+            // Procura o último veículo criado pelo usuário do mesmo tipo
+            const ultimo = await Veiculo.findOne({ owner: req.userId, tipo: { $in: tiposLimitados } }).sort({ createdAt: -1 }).limit(1);
+            if (ultimo && ultimo.createdAt && ultimo.createdAt > corte) {
+                // 429 Too Many Requests
+                return res.status(429).json({ success: false, error: 'Taxa excedida: você só pode criar 1 carro a cada minuto. Aguarde um pouco antes de tentar novamente.' });
+            }
+        }
+
+        const veiculoCriado = await Veiculo.create(novoVeiculoData);
+        // Popula o campo owner (somente nome) antes de retornar
+        await veiculoCriado.populate('owner', 'name');
+        // 4. Dados salvos com sucesso!
+        res.status(201).json({ success: true, message: 'Dados salvos com sucesso!', veiculo: veiculoCriado });
+    } catch (error) {
+        if (error.code === 11000) {
+            // 11. Usuário já existe! (adaptado para placa de veículo)
+            return res.status(409).json({ success: false, error: 'Veículo com esta placa já existe!' });
+        }
+        // Tratamento de erro de validação do Mongoose
+        if (error.name === 'ValidationError') {
+            const messages = Object.values(error.errors).map(val => val.message);
+            return res.status(400).json({ success: false, error: messages.join(', ') });
+        }
+        // 17. Erro no servidor, tente novamente!
+        res.status(500).json({ success: false, error: 'Erro no servidor, tente novamente!' });
+    }
+});
+
+// GET /api/veiculos: retorna veículos do usuário logado OU compartilhados com ele
+app.get('/api/veiculos', authMiddleware, async (req, res) => {
+    try {
+        const veiculos = await Veiculo.find({
+            $or: [
+                { owner: req.userId },
+                { sharedWith: req.userId }
+            ]
+        }).populate('owner', 'name email');
+        res.json({ success: true, message: 'Operação concluída com sucesso!', veiculos });
+    } catch (error) {
+        console.error('Erro em GET /api/veiculos (protegida):', error);
+        res.status(500).json({ success: false, error: 'Erro no servidor, tente novamente!' });
+    }
+});
+// POST /api/veiculos/:veiculoId/share: Compartilhar veículo com outro usuário
+app.post('/api/veiculos/:veiculoId/share', authMiddleware, async (req, res) => {
+    try {
+        const { veiculoId } = req.params;
+        const { email } = req.body;
+        if (!email) return res.status(400).json({ success: false, error: 'Email do usuário para compartilhar é obrigatório.' });
+
+        const veiculo = await Veiculo.findById(veiculoId);
+        if (!veiculo) return res.status(404).json({ success: false, error: 'Veículo não encontrado.' });
+        if (veiculo.owner.toString() !== req.userId) {
+            return res.status(403).json({ success: false, error: 'Acesso negado: só o dono pode compartilhar.' });
+        }
+
+        const userToShare = await User.findOne({ email });
+        if (!userToShare) return res.status(404).json({ success: false, error: 'Usuário para compartilhar não encontrado.' });
+        if (userToShare._id.equals(req.userId)) {
+            return res.status(400).json({ success: false, error: 'Não é possível compartilhar consigo mesmo.' });
+        }
+        // Evita duplicidade
+        if (veiculo.sharedWith && veiculo.sharedWith.includes(userToShare._id)) {
+            return res.status(409).json({ success: false, error: 'Veículo já compartilhado com este usuário.' });
+        }
+        veiculo.sharedWith = veiculo.sharedWith || [];
+        veiculo.sharedWith.push(userToShare._id);
+        await veiculo.save();
+        res.json({ success: true, message: `Veículo compartilhado com ${userToShare.email}` });
+    } catch (error) {
+        console.error('Erro em POST /api/veiculos/:veiculoId/share', error);
+        res.status(500).json({ success: false, error: 'Erro ao compartilhar veículo.' });
+    }
+});
+
+app.put('/api/veiculos/:id', authMiddleware, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const veiculo = await Veiculo.findById(id);
+        if (!veiculo) {
+            // 12. Usuário não encontrado! (adaptado para veículo)
+            return res.status(404).json({ success: false, error: 'Veículo não encontrado!' });
+        }
+        // VERIFICAÇÃO DE PROPRIEDADE: Apenas o criador pode editar o veículo
+        if (veiculo.owner.toString() !== req.userId) {
+            // 20. Acesso negado, você não tem permissão!
+            return res.status(403).json({ success: false, error: 'Acesso negado, você não tem permissão para editar este veículo!' });
+        }
+
+        const veiculoAtualizado = await Veiculo.findByIdAndUpdate(id, req.body, { new: true, runValidators: true });
+        // Popula o campo owner antes de retornar
+        await veiculoAtualizado.populate('owner', 'name');
+        // 4. Dados salvos com sucesso!
+        res.json({ success: true, message: 'Dados salvos com sucesso!', veiculo: veiculoAtualizado });
+    } catch (error) {
+        if (error.code === 11000) { // Placa duplicada
+            return res.status(409).json({ success: false, error: 'Veículo com esta placa já existe!' });
+        }
+        if (error.name === 'ValidationError') {
+            const messages = Object.values(error.errors).map(val => val.message);
+            return res.status(400).json({ success: false, error: messages.join(', ') });
+        }
+        // 17. Erro no servidor, tente novamente!
+        console.error('Erro em PUT /api/veiculos/:id', error);
+        res.status(500).json({ success: false, error: 'Erro no servidor, tente novamente!' });
+    }
+});
+
+// DELETE /api/veiculos/:id: Excluir veículo (apenas dono)
+app.delete('/api/veiculos/:id', authMiddleware, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const veiculo = await Veiculo.findById(id);
+        if (!veiculo) {
+            return res.status(404).json({ success: false, error: 'Veículo não encontrado!' });
+        }
+        if (veiculo.owner.toString() !== req.userId) {
+            return res.status(403).json({ success: false, error: 'Acesso negado, você não tem permissão para excluir este veículo!' });
+        }
+        await veiculo.deleteOne();
+        res.status(200).json({ success: true, message: 'Veículo excluído com sucesso.' });
+    } catch (error) {
+        console.error('Erro em DELETE /api/veiculos/:id', error);
+        res.status(500).json({ success: false, error: 'Erro no servidor, tente novamente!' });
+    }
+});
+
+app.get('/api/previsao/:cidade', async (req, res) => {
+    const { cidade } = req.params;
+    const apiKey = process.env.OPENWEATHER_API_KEY;
+    if (!apiKey) return res.status(500).json({ success: false, error: 'Chave de API do clima não configurada.' });
+
+    try {
+        // 22. Verificando dados, aguarde...
+        console.log('Verificando dados, aguarde...');
+        const url = `https://api.openweathermap.org/data/2.5/weather?q=${cidade}&appid=${apiKey}&units=metric&lang=pt_br`;
+        const response = await fetch(url);
+        const data = await response.json();
+        if (!response.ok) throw new new Error(data.message || 'Erro na API do clima.'); // Fix: new Error() instead of new new Error()
+
+        res.json({
+            success: true,
+            message: 'Operação concluída com sucesso!', // 10. Operação concluída com sucesso!
+            nomeCidade: data.name,
+            pais: data.sys.country,
+            temperaturaAtual: data.main.temp,
+            sensacaoTermica: data.main.feels_like,
+            descricaoClima: data.weather[0].description,
+            iconeClima: data.weather[0].icon,
+        });
+    } catch (error) {
+        // 17. Erro no servidor, tente novamente!
+        console.error('Erro em /api/previsao/:cidade', error);
+        res.status(500).json({ success: false, error: 'Erro no servidor, tente novamente!' });
+    }
+});
+
+app.get('/api/garagem/veiculos-destaque', (req, res) => {
+    // 10. Operação concluída com sucesso!
+    res.json({
+        success: true,
+        message: 'Operação concluída com sucesso!',
+        veiculos: [
+            { id: 1, modelo: "Tesla Cybertruck", ano: 2024, destaque: "Design Futurista", imagemUrl: "/imagens/tesla.jpeg" },
+            { id: 2, modelo: "Ford Maverick", ano: 2023, destaque: "Picape Híbrida", imagemUrl: "/imagens/maverick.jpeg" },
+            { id: 3, modelo: "Porsche Taycan", ano: 2022, destaque: "Esportivo Elétrico", imagemUrl: "/imagens/porsche.jpeg" },
+            { id: 4, modelo: "Honda Civic Type R", ano: 2024, destaque: "Alta Performance", imagemUrl: "/imagens/civic.jpeg" }
+        ]
+    });
+});
+
+app.get('/api/garagem/servicos-oferecidos', (req, res) => {
+    // 10. Operação concluída com sucesso!
+    res.json({
+        success: true,
+        message: 'Operação concluída com sucesso!',
+        servicos: [
+            { nome: "Troca de Óleo", descricao: "Uso de óleo sintético de alta qualidade.", precoEstimado: "R$ 250,00" },
+            { nome: "Alinhamento e Balanceamento", descricao: "Ajuste da geometria da suspensão.", precoEstimado: "R$ 180,00" }
+        ]
+    });
+});
+
+app.get('/api/garagem/ferramentas-essenciais/:id', (req, res) => {
+    const ferramentas = {
+        'F01': { id: "F01", nome: "Jogo de Chaves", utilidade: "Reparos gerais.", categoria: "Manual" },
+        'F02': { id: "F02", nome: "Macaco Hidráulico", utilidade: "Troca de pneus.", categoria: "Elevação" },
+        'F03': { id: "F03", nome: "Chave de Impacto", utilidade: "Remoção de porcas.", categoria: "Elétrica" }
+    };
+    const ferramenta = ferramentas[req.params.id];
+    if (ferramenta) {
+        // 10. Operação concluída com sucesso!
+        res.json({ success: true, message: 'Operação concluída com sucesso!', ferramenta: ferramenta });
+    } else {
+        // 17. Erro no servidor, tente novamente! (adaptado para ferramenta não encontrada)
+        res.status(404).json({ success: false, error: 'Ferramenta não encontrada!' });
+    }
+});
+
+// Rota pública para visitantes verem veículos (somente leitura)
+app.get('/api/veiculos/public', async (req, res) => {
+    try {
+        // Incluir o nome do owner (quando disponível) para exibição pública
+        // Popula o owner apenas com o nome
+        const veiculos = await Veiculo.find().populate('owner', 'name').select('-__v');
+
+        // Transforma a saída para ter ownerName em vez de owner: { _id, name }
+        const veiculosFormatados = veiculos.map(v => {
+            const veiculoObj = v.toObject(); // Converte o documento Mongoose para um objeto JS puro
+            if (veiculoObj.owner && veiculoObj.owner.name) {
+                veiculoObj.ownerName = veiculoObj.owner.name; // Adiciona ownerName
+            } else if (veiculoObj.owner) { // Se owner é apenas um ID string (não populado)
+                veiculoObj.ownerName = 'Usuário Desconhecido'; // Ou um fallback
+            } else {
+                veiculoObj.ownerName = 'Nenhum Proprietário'; // Se não houver owner
+            }
+            delete veiculoObj.owner; // Remove o campo owner original
+            return veiculoObj;
+        });
+
+        // 10. Operação concluída com sucesso!
+        res.json({ success: true, message: 'Operação concluída com sucesso!', veiculos: veiculosFormatados });
+    } catch (err) {
+        // 17. Erro no servidor, tente novamente!
+        console.error('Erro em GET /api/veiculos/public', err);
+        res.status(500).json({ success: false, error: 'Erro no servidor, tente novamente!' });
+    }
+});
+
+
+// Rota Final - Serve o index.html
+// Esta rota "pega-tudo" deve ser a ÚLTIMA. Ela garante que, se a requisição não
+// corresponder a nenhuma API acima, o Render tentará servir a página principal do seu site.
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/index.html'));
+});
+
+
+app.listen(PORT, () => {
+    console.log(`[BACKEND] Servidor rodando na porta ${PORT}`);
+});
+
+// Health check simples para debug local
+app.get('/health', (req, res) => {
+    res.json({ status: 'ok', time: new Date().toISOString() });
+});
